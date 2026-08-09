@@ -248,21 +248,6 @@ export default function AdminLoginPage() {
           </form>
 
           {/* Divider + credentials hint */}
-          <div className="mt-8 pt-6 border-t border-[#E0E0E0]">
-            <p className="text-center text-[12px] font-semibold text-[#A6A6A6] uppercase tracking-wider mb-3">
-              Akun Default
-            </p>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between bg-white border border-[#E0E0E0] rounded-lg px-4 py-2.5 text-[12px]">
-                <span className="font-semibold text-[#6B6B6B]">Admin</span>
-                <span className="font-mono text-[#1A1A1A] font-bold">adminbongiri123</span>
-              </div>
-              <div className="flex items-center justify-between bg-white border border-[#E0E0E0] rounded-lg px-4 py-2.5 text-[12px]">
-                <span className="font-semibold text-[#6B6B6B]">Staff</span>
-                <span className="font-mono text-[#1A1A1A] font-bold">staffbongiri123</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

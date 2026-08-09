@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
@@ -5,7 +6,7 @@ import bcrypt from "bcryptjs";
 
 const connectionString =
   process.env.DATABASE_URL ||
-  "postgresql://postgres:postgres@localhost:5432/bon_giri?schema=public";
+  "postgresql://postgres.unnaqppdjfdbcuijgxqd:giri-bon1920@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?schema=public";
 const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
