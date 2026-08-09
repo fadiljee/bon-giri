@@ -4,9 +4,12 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import bcrypt from "bcryptjs";
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  "postgresql://postgres.unnaqppdjfdbcuijgxqd:giri-bon1920@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?schema=public";
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error(
+    "DATABASE_URL tidak ditemukan. Pastikan variabel DATABASE_URL telah dikonfigurasi di file .env"
+  );
+}
 const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });

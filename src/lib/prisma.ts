@@ -7,10 +7,11 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const createPrismaClient = () => {
-  const connectionString =
-    process.env.DATABASE_URL ||
-    "postgresql://postgres:postgres@localhost:5432/bon_giri?schema=public";
-  const pool = new pg.Pool({ connectionString });
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.warn("DATABASE_URL variable is missing in environment.");
+  }
+  const pool = new pg.Pool({ connectionString: connectionString || "" });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 };
