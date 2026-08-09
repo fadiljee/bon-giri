@@ -81,6 +81,26 @@ Buka [http://localhost:3000](http://localhost:3000) pada browser Anda.
 
 ---
 
+## ☁️ Panduan Deploy Database ke Supabase
+
+Jika Anda ingin memindahkan database PostgreSQL dari lokal ke **Supabase (Cloud)**:
+
+1. **Buat Project Supabase**: Buka [Supabase Dashboard](https://supabase.com/dashboard) ➔ *New Project*.
+2. **Ambil Connection String**:
+   - Masuk ke *Project Settings* ➔ *Database* ➔ *Connection String* ➔ Pilih tab **URI**.
+   - Salin URL koneksi (disarankan menggunakan mode Transaction Pooler port `6543`).
+3. **Update `.env` atau Vercel Environment Variables**:
+   ```env
+   DATABASE_URL="postgres://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?schema=public"
+   ```
+4. **Push Skema & Seed Data ke Supabase**:
+   ```bash
+   npx prisma db push
+   npx tsx prisma/seed.ts
+   ```
+
+---
+
 ## 🔑 Kredensial Login Portal Admin Default
 
 Setelah menjalankan perintah `npx tsx prisma/seed.ts`, Anda dapat masuk ke Portal Admin di [http://localhost:3000/admin/login](http://localhost:3000/admin/login) dengan akun berikut:

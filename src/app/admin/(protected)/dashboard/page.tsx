@@ -133,7 +133,7 @@ export default async function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 font-medium text-neutral-800">
-              {recentProducts.map((p) => (
+              {recentProducts.map((p: any) => (
                 <tr key={p.id} className="hover:bg-neutral-50/80 transition-colors">
                   <td className="py-4 px-6 font-bold text-neutral-900 flex items-center gap-2">
                     {p.name}
