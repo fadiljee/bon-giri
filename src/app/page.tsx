@@ -6,51 +6,8 @@ import { ArrowRight, MessageSquare, CheckCircle2, Flame, Sparkles, Fish, Utensil
 
 export const revalidate = 60;
 
-const FALLBACK_PRODUCTS = [
-  {
-    id: "fb-1",
-    name: "Stik Keju Ikan Tenggiri Original 100g",
-    description: "Stik keju gurih renyah berbahan dasar keju premium & kalsium tinggi tulang ikan tenggiri khas Bangka Belitung.",
-    price: 15000,
-    spiceLevel: "Original",
-    isAvailable: true,
-    category: { name: "Varian Original" },
-    images: [{ url: "/images/products/original.png" }],
-  },
-  {
-    id: "fb-2",
-    name: "Stik Keju Ikan Tenggiri Pedas Balado 100g",
-    description: "Sensasi renyah gurih keju ikan tenggiri berpadu dengan bumbu pedas balado khas yang kaya rempah.",
-    price: 16000,
-    spiceLevel: "Pedas Sedang",
-    isAvailable: true,
-    category: { name: "Varian Pedas" },
-    images: [{ url: "/images/products/balado.png" }],
-  },
-  {
-    id: "fb-3",
-    name: "Stik Keju Ikan Tenggiri Rasa BBQ 100g",
-    description: "Aroma asap smokey barbeque khas yang dipadukan dengan keju melimpah dan kerenyahan kalsium ikan tenggiri.",
-    price: 16000,
-    spiceLevel: "Original",
-    isAvailable: true,
-    category: { name: "Varian Original" },
-    images: [{ url: "/images/products/bbq.png" }],
-  },
-  {
-    id: "fb-4",
-    name: "Stik Keju Ikan Tenggiri Rumput Laut 100g",
-    description: "Sensasi umami gurih rumput laut pilihan yang membalur stik keju renyah tinggi nutrisi kalsium.",
-    price: 16500,
-    spiceLevel: "Original",
-    isAvailable: true,
-    category: { name: "Spesial Aroma" },
-    images: [{ url: "/images/products/rumput-laut.png" }],
-  },
-];
-
 export default async function Home() {
-  let featuredProducts = FALLBACK_PRODUCTS;
+  let featuredProducts: any[] = [];
   let waNumber = "6288267018426";
 
   try {
@@ -64,9 +21,7 @@ export default async function Home() {
       orderBy: { createdAt: "desc" },
     });
 
-    if (dbProducts && dbProducts.length > 0) {
-      featuredProducts = dbProducts as any;
-    }
+    featuredProducts = dbProducts || [];
 
     const settings = await prisma.businessSetting.findUnique({
       where: { id: "default" },
@@ -76,7 +31,7 @@ export default async function Home() {
       waNumber = settings.whatsappNumber;
     }
   } catch (error) {
-    console.warn("DB connection pending or unreachable, using fallback product data.", error);
+    console.error("Error fetching homepage data from DB:", error);
   }
 
   return (
@@ -209,72 +164,78 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => {
-                const imgUrl =
-                  product.images[0]?.url || "/images/products/original.png";
+            {featuredProducts.length === 0 ? (
+              <div className="text-center py-12 text-[#6B6B6B]">
+                Belum ada produk yang ditampilkan saat ini.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {featuredProducts.map((product) => {
+                  const imgUrl =
+                    product.images[0]?.url || "/images/products/original.png";
 
-                const waMessage = encodeURIComponent(
-                  `Halo Bon Giri, saya ingin memesan produk: *${product.name}* (Harga: Rp ${product.price.toLocaleString("id-ID")})`
-                );
+                  const waMessage = encodeURIComponent(
+                    `Halo Bon Giri, saya ingin memesan produk: *${product.name}* (Harga: Rp ${product.price.toLocaleString("id-ID")})`
+                  );
 
-                return (
-                  <div
-                    key={product.id}
-                    className="gsap-card flex flex-col bg-white rounded-xl border border-[#E0E0E0] overflow-hidden hover:shadow-lg transition-all duration-200 group"
-                    style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-                  >
-                    <div className="relative aspect-4/3 overflow-hidden bg-[#FFFEF3]">
-                      <img
-                        src={imgUrl}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold text-[#1A1A1A] shadow-sm">
-                        {product.category.name}
-                      </div>
-                      {product.spiceLevel && (
-                        <div className="absolute top-3 right-3 tag-filled text-[10px] gap-1">
-                          <Flame className="w-3 h-3" />
-                          {product.spiceLevel}
+                  return (
+                    <div
+                      key={product.id}
+                      className="gsap-card flex flex-col bg-white rounded-xl border border-[#E0E0E0] overflow-hidden hover:shadow-lg transition-all duration-200 group"
+                      style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
+                    >
+                      <div className="relative aspect-4/3 overflow-hidden bg-[#FFFEF3]">
+                        <img
+                          src={imgUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold text-[#1A1A1A] shadow-sm">
+                          {product.category.name}
                         </div>
-                      )}
-                    </div>
+                        {product.spiceLevel && (
+                          <div className="absolute top-3 right-3 tag-filled text-[10px] gap-1">
+                            <Flame className="w-3 h-3" />
+                            {product.spiceLevel}
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="p-5 flex flex-col flex-1">
-                      <h3 className="font-semibold text-[19px] text-[#1A1A1A] leading-snug line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-[13px] text-[#6B6B6B] mt-1.5 line-clamp-2 flex-1 leading-[1.6]">
-                        {product.description}
-                      </p>
+                      <div className="p-5 flex flex-col flex-1">
+                        <h3 className="font-semibold text-[19px] text-[#1A1A1A] leading-snug line-clamp-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-[13px] text-[#6B6B6B] mt-1.5 line-clamp-2 flex-1 leading-[1.6]">
+                          {product.description}
+                        </p>
 
-                      <div className="mt-4 pt-3 border-t border-[#E0E0E0] flex items-center justify-between">
-                        <div>
-                          <span className="text-[12px] text-[#A6A6A6] font-medium uppercase tracking-[0.04em] block leading-none">
-                            Harga Kemasan
-                          </span>
-                          <span className="text-[18px] font-bold text-[#FDB813] leading-tight">
-                            Rp {product.price.toLocaleString("id-ID")}
-                          </span>
+                        <div className="mt-4 pt-3 border-t border-[#E0E0E0] flex items-center justify-between">
+                          <div>
+                            <span className="text-[12px] text-[#A6A6A6] font-medium uppercase tracking-[0.04em] block leading-none">
+                              Harga Kemasan
+                            </span>
+                            <span className="text-[18px] font-bold text-[#FDB813] leading-tight">
+                              Rp {product.price.toLocaleString("id-ID")}
+                            </span>
+                          </div>
+
+                          <a
+                            href={`https://wa.me/${waNumber}?text=${waMessage}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="wa-btn py-2 px-3.5 text-[12px] font-bold"
+                            title="Pesan via WhatsApp"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 fill-white" />
+                            Pesan WA
+                          </a>
                         </div>
-
-                        <a
-                          href={`https://wa.me/${waNumber}?text=${waMessage}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="wa-btn py-2 px-3.5 text-[12px] font-bold"
-                          title="Pesan via WhatsApp"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5 fill-white" />
-                          Pesan WA
-                        </a>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </section>
 

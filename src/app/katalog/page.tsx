@@ -13,73 +13,18 @@ interface KatalogProps {
   }>;
 }
 
-const FALLBACK_CATEGORIES = [
-  { id: "cat-1", name: "Varian Original", slug: "original" },
-  { id: "cat-2", name: "Varian Pedas", slug: "pedas" },
-  { id: "cat-3", name: "Spesial Aroma", slug: "spesial-aroma" },
-];
-
-const FALLBACK_PRODUCTS = [
-  {
-    id: "fb-1",
-    name: "Stik Keju Ikan Tenggiri Original 100g",
-    slug: "stik-keju-tenggiri-original-100g",
-    description: "Stik keju gurih renyah berbahan dasar keju premium & kalsium tinggi tulang ikan tenggiri khas Bangka Belitung.",
-    price: 15000,
-    spiceLevel: "Original",
-    isAvailable: true,
-    category: { name: "Varian Original", slug: "original" },
-    images: [{ url: "/images/products/original.png" }],
-  },
-  {
-    id: "fb-2",
-    name: "Stik Keju Ikan Tenggiri Pedas Balado 100g",
-    slug: "stik-keju-tenggiri-pedas-balado-100g",
-    description: "Sensasi renyah gurih keju ikan tenggiri berpadu dengan bumbu pedas balado khas yang kaya rempah.",
-    price: 16000,
-    spiceLevel: "Pedas Sedang",
-    isAvailable: true,
-    category: { name: "Varian Pedas", slug: "pedas" },
-    images: [{ url: "/images/products/balado.png" }],
-  },
-  {
-    id: "fb-3",
-    name: "Stik Keju Ikan Tenggiri Rasa BBQ 100g",
-    slug: "stik-keju-tenggiri-rasa-bbq-100g",
-    description: "Aroma asap smokey barbeque khas yang dipadukan dengan keju melimpah dan kerenyahan kalsium ikan tenggiri.",
-    price: 16000,
-    spiceLevel: "Original",
-    isAvailable: true,
-    category: { name: "Varian Original", slug: "original" },
-    images: [{ url: "/images/products/bbq.png" }],
-  },
-  {
-    id: "fb-4",
-    name: "Stik Keju Ikan Tenggiri Rumput Laut 100g",
-    slug: "stik-keju-tenggiri-rumput-laut-100g",
-    description: "Sensasi umami gurih rumput laut pilihan yang membalur stik keju renyah tinggi nutrisi kalsium.",
-    price: 16500,
-    spiceLevel: "Original",
-    isAvailable: true,
-    category: { name: "Spesial Aroma", slug: "spesial-aroma" },
-    images: [{ url: "/images/products/rumput-laut.png" }],
-  },
-];
-
 export default async function KatalogPage({ searchParams }: KatalogProps) {
   const { kategori, q } = await searchParams;
 
-  let categories = FALLBACK_CATEGORIES;
-  let products = FALLBACK_PRODUCTS;
+  let categories: any[] = [];
+  let products: any[] = [];
   let waNumber = "6288267018426";
 
   try {
     const dbCategories = await prisma.category.findMany({
       orderBy: { name: "asc" },
     });
-    if (dbCategories && dbCategories.length > 0) {
-      categories = dbCategories as any;
-    }
+    categories = dbCategories || [];
 
     const whereCondition: any = {};
     if (kategori) {
@@ -101,16 +46,14 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
       orderBy: { createdAt: "desc" },
     });
 
-    if (dbProducts) {
-      products = dbProducts as any;
-    }
+    products = dbProducts || [];
 
     const settings = await prisma.businessSetting.findUnique({
       where: { id: "default" },
     });
     if (settings?.whatsappNumber) waNumber = settings.whatsappNumber;
   } catch (error) {
-    console.warn("DB connection pending or unreachable in KatalogPage, using fallback data.", error);
+    console.error("Error loading KatalogPage data from DB:", error);
   }
 
   return (
@@ -143,8 +86,8 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
               <Link
                 href="/katalog"
                 className={`px-4 py-2 rounded-lg text-[12px] font-semibold whitespace-nowrap transition-all duration-150 uppercase tracking-[0.04em] ${!kategori
-                    ? "bg-[#FDB813] text-[#1A1A1A]"
-                    : "bg-[#E0E0E0] text-[#3D3D3D] hover:bg-[#A6A6A6]/30"
+                  ? "bg-[#FDB813] text-[#1A1A1A]"
+                  : "bg-[#E0E0E0] text-[#3D3D3D] hover:bg-[#A6A6A6]/30"
                   }`}
               >
                 Semua Varian ({products.length})
@@ -156,8 +99,8 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
                     key={cat.id}
                     href={`/katalog?kategori=${cat.slug}${q ? `&q=${q}` : ""}`}
                     className={`px-4 py-2 rounded-lg text-[12px] font-semibold whitespace-nowrap transition-all duration-150 uppercase tracking-[0.04em] ${isSelected
-                        ? "bg-[#FDB813] text-[#1A1A1A]"
-                        : "bg-[#E0E0E0] text-[#3D3D3D] hover:bg-[#A6A6A6]/30"
+                      ? "bg-[#FDB813] text-[#1A1A1A]"
+                      : "bg-[#E0E0E0] text-[#3D3D3D] hover:bg-[#A6A6A6]/30"
                       }`}
                   >
                     {cat.name}

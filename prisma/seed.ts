@@ -95,7 +95,7 @@ async function main() {
       slug: "stik-keju-tenggiri-pedas-balado-100g",
       description:
         "Sensasi renyah gurih keju ikan tenggiri berpadu dengan bumbu pedas balado khas yang kaya rempah.",
-      price: 16000,
+      price: 10000,
       spiceLevel: "Pedas Sedang",
       isAvailable: true,
       categoryId: catPedas.id,
@@ -113,7 +113,7 @@ async function main() {
       slug: "stik-keju-tenggiri-rasa-bbq-100g",
       description:
         "Aroma asap smokey barbeque khas yang dipadukan dengan keju melimpah dan kerenyahan kalsium ikan tenggiri.",
-      price: 16000,
+      price: 10000,
       spiceLevel: "Original",
       isAvailable: true,
       categoryId: catOriginal.id,
