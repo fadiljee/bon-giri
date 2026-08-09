@@ -1,0 +1,334 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Primary (Matte Gold/Amber) ── */
+  --color-primary-900: #4A3200;
+  --color-primary-700: #8C6300;
+  --color-primary-500: #D48806;
+  --color-primary-300: #E2B024;
+  --color-primary-100: #F7E7B6;
+
+  /* ── Secondary (Blue) ── */
+  --color-secondary-900: #001F33;
+  --color-secondary-700: #003D5C;
+  --color-secondary-500: #005B96;
+  --color-secondary-300: #4D8FBF;
+  --color-secondary-100: #B3D1E8;
+
+  /* ── Tertiary (Cream) ── */
+  --color-tertiary-900: #7A7550;
+  --color-tertiary-700: #B0AA78;
+  --color-tertiary-500: #FFFDD0;
+  --color-tertiary-300: #FFFEE3;
+  --color-tertiary-100: #FFFEF3;
+
+  /* ── Neutral (Grayscale) ── */
+  --color-neutral-900: #1A1A1A;
+  --color-neutral-700: #3D3D3D;
+  --color-neutral-500: #6B6B6B;
+  --color-neutral-300: #A6A6A6;
+  --color-neutral-100: #E0E0E0;
+  --color-neutral-0: #FFFFFF;
+
+  /* ── Status ── */
+  --color-status-info:    #005B96;
+  --color-status-success: #4A6B1F;
+  --color-status-warning: #D48806;
+  --color-status-danger:  #C81E1E;
+
+  /* ── Fonts ── */
+  --font-montserrat: var(--font-montserrat), sans-serif;
+  --font-playfair:   var(--font-playfair), serif;
+}
+
+/* ── CSS Variables ── */
+:root {
+  --font-body:    var(--font-montserrat), 'Montserrat', sans-serif;
+  --font-display: var(--font-playfair), 'Playfair Display', serif;
+
+  --fs-display:    52px;
+  --fs-headline:   32px;
+  --fs-subheading: 19px;
+  --fs-body:       16px;
+  --fs-label:      12px;
+  --lh-body:       1.65;
+  --lh-heading:    1.15;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+}
+
+/* ── Lenis Smooth Scroll ── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background-color: #FFFFFF;
+  color: #1A1A1A;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  line-height: var(--lh-body);
+}
+
+/* ── Display / Headline Utility ── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: var(--lh-heading);
+}
+
+/* ════════════════════════════════════════
+   §4.1 BUTTONS
+   ════════════════════════════════════════ */
+
+/* Primary — Dark Neutral basic button with clean text */
+.btn-primary {
+  background-color: #1A1A1A;
+  color: #FFFFFF;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  gap: 0.375rem;
+  white-space: nowrap;
+}
+.btn-primary:hover {
+  background-color: #333333;
+  color: #FDD273;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.btn-primary:active { transform: translateY(0); }
+
+/* Secondary — Transparan + border soft */
+.btn-secondary {
+  background-color: transparent;
+  color: #1A1A1A;
+  font-family: var(--font-body);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  gap: 0.375rem;
+}
+.btn-secondary:hover { color: #005B96; }
+
+/* Inverted — Neutral-900 */
+.btn-inverted {
+  background-color: #1A1A1A;
+  color: #FFFFFF;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  gap: 0.375rem;
+}
+.btn-inverted:hover {
+  background-color: #333333;
+  transform: translateY(-1px);
+}
+
+/* Outlined — Border neutral-300 */
+.btn-outlined {
+  background-color: transparent;
+  border: 1.5px solid #D1D5DB;
+  color: #1A1A1A;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  gap: 0.375rem;
+}
+.btn-outlined:hover {
+  border-color: #1A1A1A;
+  background-color: rgba(26, 26, 26, 0.04);
+}
+
+/* WhatsApp CTA Button */
+.wa-btn {
+  background-color: #16A34A;
+  color: #FFFFFF;
+  border-radius: 100px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+  white-space: nowrap;
+}
+.wa-btn:hover {
+  background-color: #15803D;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+/* ════════════════════════════════════════
+   §4.4 TAGS
+   ════════════════════════════════════════ */
+
+.tag-filled {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: #E2B024;
+  color: #1A1A1A;
+  border-radius: 100px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.tag-outlined {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: transparent;
+  color: #3D3D3D;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 100px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.tag-danger {
+  display: inline-flex;
+  align-items: center;
+  background-color: #DC2626;
+  color: #FFFFFF;
+  border-radius: 100px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* ════════════════════════════════════════
+   §4.5 ADMIN ACTION BUTTONS
+   ════════════════════════════════════════ */
+
+.action-btn-gold {
+  width: 32px; height: 32px; border-radius: 50%;
+  background-color: #E2B024; color: #1A1A1A;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease; flex-shrink: 0;
+}
+.action-btn-gold:hover { background-color: #F7E7B6; }
+
+.action-btn-blue {
+  width: 32px; height: 32px; border-radius: 50%;
+  background-color: #005B96; color: #FFFFFF;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease; flex-shrink: 0;
+}
+.action-btn-blue:hover { background-color: #4D8FBF; }
+
+.action-btn-olive {
+  width: 32px; height: 32px; border-radius: 50%;
+  background-color: #4A6B1F; color: #FFFFFF;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease; flex-shrink: 0;
+}
+.action-btn-olive:hover { background-color: #618c29; }
+
+.action-btn-red {
+  width: 32px; height: 32px; border-radius: 50%;
+  background-color: #DC2626; color: #FFFFFF;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease; flex-shrink: 0;
+}
+.action-btn-red:hover { background-color: #B91C1C; }
+.action-btn-red:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ════════════════════════════════════════
+   §4.6 CARD & SEARCH
+   ════════════════════════════════════════ */
+
+.card {
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.search-input {
+  background-color: #FFFFFF;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 10px 40px;
+  color: #1A1A1A;
+  font-size: var(--fs-label);
+  font-family: var(--font-body);
+  font-weight: 500;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+.search-input::placeholder { color: #6B6B6B; }
+.search-input:focus {
+  outline: none;
+  border-color: #1A1A1A;
+  box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.08);
+}
+
+/* ════════════════════════════════════════
+   CUSTOM SCROLLBARS
+   ════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F8F7F4; }
+::-webkit-scrollbar-thumb { background: #A6A6A6; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #1A1A1A; }
+
+/* ════════════════════════════════════════
+   MOBILE RESPONSIVE UTILITIES
+   ════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .wa-btn { padding: 0.625rem 1rem; font-size: 13px; }
+  .btn-primary { padding: 0.625rem 1rem; }
+}
