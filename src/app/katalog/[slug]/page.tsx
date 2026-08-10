@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, MessageSquare, ShieldCheck, Flame, CheckCircle2, AlertCircle } from "lucide-react";
 
 export const revalidate = 60;
@@ -16,26 +17,27 @@ interface ProductDetailProps {
 export default async function ProductDetailPage({ params }: ProductDetailProps) {
   const { slug } = await params;
 
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    include: {
-      category: true,
-      images: { orderBy: { sortOrder: "asc" } },
-    },
-  });
+  const [product, settings] = await Promise.all([
+    prisma.product.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        images: { orderBy: { sortOrder: "asc" } },
+      },
+    }),
+    prisma.businessSetting.findUnique({
+      where: { id: "default" },
+    }),
+  ]);
 
   if (!product) {
     notFound();
   }
 
-  const settings = await prisma.businessSetting.findUnique({
-    where: { id: "default" },
-  });
-
   const waNumber = settings?.whatsappNumber || "6288267018426";
 
   const imgUrl =
-    product.images[0]?.url || "/images/products/original.png";
+    product.images[0]?.url || "/images/products/original.webp";
 
   const waMessage = encodeURIComponent(
     `Halo Bon Giri, saya berminat order produk:\n\n*Nama:* ${product.name}\n*Harga:* Rp ${product.price.toLocaleString("id-ID")}\n*Varian Rasa:* ${product.spiceLevel}\n\nApakah stok masih tersedia?`
@@ -65,11 +67,14 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
 
               {/* Product Image */}
               <div className="lg:col-span-6">
-                <div className="relative aspect-4/3 rounded-xl overflow-hidden bg-[#FFFEF3] border border-[#E0E0E0]">
-                  <img
+                <div className="relative aspect-[3/2] rounded-xl overflow-hidden bg-[#FFFEF3] border border-[#E0E0E0]">
+                  <Image
                     src={imgUrl}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
                   />
                   <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-[12px] font-bold text-[#1A1A1A] shadow-sm">
                     {product.category.name}

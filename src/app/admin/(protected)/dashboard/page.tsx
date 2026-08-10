@@ -3,13 +3,117 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Package, CheckCircle2, AlertCircle, Layers, Plus, Settings, Flame } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
+// ── SVG Area Chart (decorative) ──────────────────────────────────────────────
+function AreaChart() {
+  // Two smooth overlapping areas — matches visual in reference image
+  return (
+    <svg
+      viewBox="0 0 600 140"
+      className="w-full h-full"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="ag1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#374151" stopOpacity="0.75" />
+          <stop offset="100%" stopColor="#374151" stopOpacity="0.05" />
+        </linearGradient>
+        <linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1f2937" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#1f2937" stopOpacity="0.2" />
+        </linearGradient>
+      </defs>
+
+      {/* Back area — taller peak */}
+      <path
+        d="M0,95 C60,75 120,45 180,58 C240,71 300,30 360,42 C420,54 480,25 540,35 L600,38 L600,140 L0,140 Z"
+        fill="url(#ag1)"
+      />
+      {/* Front area — lower, overlapping */}
+      <path
+        d="M0,118 C60,108 120,90 180,98 C240,106 300,75 360,82 C420,89 480,62 540,68 L600,65 L600,140 L0,140 Z"
+        fill="url(#ag2)"
+      />
+      {/* Stroke line on front area */}
+      <path
+        d="M0,118 C60,108 120,90 180,98 C240,106 300,75 360,82 C420,89 480,62 540,68 L600,65"
+        fill="none"
+        stroke="#4b5563"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+// ── Stat Card ─────────────────────────────────────────────────────────────────
+function StatCard({
+  label,
+  value,
+  badge,
+  badgeType,
+  desc1,
+  desc2,
+}: {
+  label: string;
+  value: string | number;
+  badge?: string;
+  badgeType?: "positive" | "negative" | "neutral";
+  desc1: string;
+  desc2: string;
+}) {
+  const badgeClass =
+    badgeType === "positive"
+      ? "bg-emerald-950/60 text-emerald-400 border border-emerald-900/50"
+      : badgeType === "negative"
+      ? "bg-red-950/60 text-red-400 border border-red-900/50"
+      : "bg-[#1f1f1f] text-[#737373] border border-[#2a2a2a]";
+
+  return (
+    <div className="flex min-w-[260px] flex-col justify-between rounded-xl border border-[#262626] bg-[#1a1a1a] p-5 shadow-sm">
+      {/* Label + badge row */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] font-medium uppercase tracking-widest text-[#525252]">
+          {label}
+        </span>
+        {badge && (
+          <span
+            className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold ${badgeClass}`}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {/* Large number */}
+      <p className="mt-3 font-mono text-4xl font-bold tracking-tight text-[#ededed]">
+        {value}
+      </p>
+
+      {/* Descriptions */}
+      <div className="mt-3 space-y-0.5">
+        <p className="text-[12px] font-semibold text-[#a3a3a3]">{desc1}</p>
+        <p className="text-[11px] text-[#525252]">{desc2}</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/admin/login");
-  }
+  if (!session) redirect("/admin/login");
 
   const [totalProducts, availableProducts, outOfStockProducts, categoriesCount, recentProducts] =
     await Promise.all([
@@ -18,159 +122,163 @@ export default async function AdminDashboardPage() {
       prisma.product.count({ where: { isAvailable: false } }),
       prisma.category.count(),
       prisma.product.findMany({
-        take: 5,
+        take: 8,
         orderBy: { updatedAt: "desc" },
         include: { category: true },
       }),
     ]);
 
+  const availPct =
+    totalProducts > 0
+      ? `${Math.round((availableProducts / totalProducts) * 100)}%`
+      : "0%";
+
+  const outPct =
+    totalProducts > 0
+      ? `${Math.round((outOfStockProducts / totalProducts) * 100)}%`
+      : "0%";
+
   return (
-    <div className="space-y-8">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-neutral-200 shadow-xs">
-        <div>
-          <span className="text-xs font-bold text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
-            Selamat Datang, {session.user?.name}
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 mt-2">
-            Dashboard Kelola Bon Giri
-          </h1>
-          <p className="text-xs text-neutral-500 mt-1">
-            Pantau status stok produk dan ubah informasi bisnis dari panel ini.
-          </p>
-        </div>
+    <div className="p-6 md:p-8 space-y-6">
 
-        <Link
-          href="/admin/produk/tambah"
-          className="btn-primary text-xs font-bold px-4 py-2.5 shadow-sm"
-        >
-          <Plus className="w-4 h-4 mr-1.5" />
-          Tambah Produk Baru
-        </Link>
+      {/* ── Stat Cards (horizontal scroll on mobile) ─────────────────── */}
+      <div className="flex gap-4 overflow-x-auto pb-1 scrollbar-none">
+        <StatCard
+          label="Total Produk"
+          value={totalProducts}
+          badge="Katalog Aktif"
+          badgeType="neutral"
+          desc1="Total varian produk terdaftar"
+          desc2="Stik keju Bon Giri aktif di database"
+        />
+        <StatCard
+          label="Stok Ready"
+          value={availableProducts}
+          badge={`↗ ${availPct}`}
+          badgeType="positive"
+          desc1="Produk tersedia untuk diorder"
+          desc2="Siap kirim ke pelanggan"
+        />
+        <StatCard
+          label="Stok Habis"
+          value={outOfStockProducts}
+          badge={outOfStockProducts > 0 ? `↘ ${outPct}` : "✓ Aman"}
+          badgeType={outOfStockProducts > 0 ? "negative" : "positive"}
+          desc1={outOfStockProducts > 0 ? "Perlu segera direstok" : "Semua stok aman"}
+          desc2="Produk nonaktif di katalog"
+        />
+        <StatCard
+          label="Kategori"
+          value={categoriesCount}
+          badge="Jenis Varian"
+          badgeType="neutral"
+          desc1="Kelompok kategori produk"
+          desc2="Klasifikasi varian Bon Giri"
+        />
       </div>
 
-      {/* Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-              Total Produk
-            </span>
-            <div className="p-2 rounded-xl bg-amber-100 text-amber-800">
-              <Package className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-3xl font-extrabold text-neutral-900">{totalProducts}</p>
-          <span className="text-[11px] text-neutral-500">Varian terdaftar di katalog</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-              Stok Ready
-            </span>
-            <div className="p-2 rounded-xl bg-emerald-100 text-emerald-700">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-3xl font-extrabold text-emerald-600">{availableProducts}</p>
-          <span className="text-[11px] text-emerald-700 font-medium">Tersedia untuk diorder</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-              Stok Habis
-            </span>
-            <div className="p-2 rounded-xl bg-red-100 text-red-700">
-              <AlertCircle className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-3xl font-extrabold text-red-600">{outOfStockProducts}</p>
-          <span className="text-[11px] text-red-600 font-medium">Nonaktif / Perlu Restok</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-              Kategori
-            </span>
-            <div className="p-2 rounded-xl bg-sky-100 text-sky-700">
-              <Layers className="w-5 h-5" />
-            </div>
-          </div>
-          <p className="text-3xl font-extrabold text-neutral-900">{categoriesCount}</p>
-          <span className="text-[11px] text-neutral-500">Kategori varian aktif</span>
-        </div>
-      </div>
-
-      {/* Recent Products Table */}
-      <div className="bg-white rounded-3xl border border-neutral-200 shadow-xs overflow-hidden">
-        <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+      {/* ── Total Visitors-style Chart Card ──────────────────────────── */}
+      <div className="rounded-xl border border-[#262626] bg-[#1a1a1a] overflow-hidden">
+        <div className="flex items-start justify-between px-5 pt-5 pb-3">
           <div>
-            <h2 className="font-bold text-neutral-900 text-lg">Aktivitas Produk Terkini</h2>
-            <p className="text-xs text-neutral-500">
-              Daftar produk yang baru saja ditambahkan atau diperbarui.
+            <p className="text-[13px] font-semibold text-[#ededed]">
+              Distribusi Stok Produk
+            </p>
+            <p className="mt-0.5 text-[11px] text-[#525252]">
+              Proporsi produk ready vs habis dari total katalog
             </p>
           </div>
-          <Link
-            href="/admin/produk"
-            className="text-xs font-bold text-amber-700 hover:text-amber-800"
-          >
-            Lihat Semua →
-          </Link>
+          <Button asChild variant="ghost" size="sm" className="text-[11px] -mt-0.5">
+            <Link href="/admin/produk">Kelola Produk →</Link>
+          </Button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-neutral-50 border-b border-neutral-100 text-neutral-400 uppercase font-bold tracking-wider">
-              <tr>
-                <th className="py-3.5 px-6">Nama Produk</th>
-                <th className="py-3.5 px-6">Kategori</th>
-                <th className="py-3.5 px-6">Harga</th>
-                <th className="py-3.5 px-6">Status Stok</th>
-                <th className="py-3.5 px-6 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 font-medium text-neutral-800">
-              {recentProducts.map((p: any) => (
-                <tr key={p.id} className="hover:bg-neutral-50/80 transition-colors">
-                  <td className="py-4 px-6 font-bold text-neutral-900 flex items-center gap-2">
-                    {p.name}
-                    {p.spiceLevel && (
-                      <span className="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                        {p.spiceLevel}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-4 px-6">{p.category.name}</td>
-                  <td className="py-4 px-6 font-bold text-amber-700">
-                    Rp {p.price.toLocaleString("id-ID")}
-                  </td>
-                  <td className="py-4 px-6">
+        {/* Chart area */}
+        <div className="h-36 w-full px-0">
+          <AreaChart />
+        </div>
+      </div>
+
+      {/* ── Recent Products Table Card ────────────────────────────────── */}
+      <div className="rounded-xl border border-[#262626] bg-[#1a1a1a] overflow-hidden">
+        {/* Table Header */}
+        <div className="flex items-center justify-between border-b border-[#262626] px-5 py-4">
+          <div>
+            <p className="text-[13px] font-semibold text-[#ededed]">
+              Aktivitas Produk Terkini
+            </p>
+            <p className="mt-0.5 text-[11px] text-[#525252]">
+              Produk yang baru ditambahkan atau diperbarui
+            </p>
+          </div>
+          <Button asChild variant="ghost" size="sm" className="text-[11px]">
+            <Link href="/admin/produk">Lihat Semua →</Link>
+          </Button>
+        </div>
+
+        {/* Table */}
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nama Varian</TableHead>
+              <TableHead>Kategori</TableHead>
+              <TableHead>Harga</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {recentProducts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-10 text-center text-[#525252]">
+                  Belum ada produk. Tambahkan produk pertama Anda.
+                </TableCell>
+              </TableRow>
+            ) : (
+              recentProducts.map((p: any) => (
+                <TableRow key={p.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[#ededed]">{p.name}</span>
+                      {p.spiceLevel && (
+                        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide bg-amber-950/40 text-amber-400 border border-amber-900/40">
+                          {p.spiceLevel}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-[11px] text-[#737373]">{p.category.name}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono text-[13px] font-semibold text-[#a3a3a3]">
+                      Rp {p.price.toLocaleString("id-ID")}
+                    </span>
+                  </TableCell>
+                  <TableCell>
                     {p.isAvailable ? (
-                      <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-[10px] font-bold">
+                      <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-emerald-950/50 text-emerald-400 border border-emerald-900/50">
                         Ready
                       </span>
                     ) : (
-                      <span className="bg-red-100 text-red-800 px-2.5 py-1 rounded-full text-[10px] font-bold">
+                      <span className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-red-950/50 text-red-400 border border-red-900/50">
                         Habis
                       </span>
                     )}
-                  </td>
-                  <td className="py-4 px-6 text-right">
+                  </TableCell>
+                  <TableCell className="text-right">
                     <Link
                       href={`/admin/produk/edit/${p.id}`}
-                      className="text-amber-700 hover:underline font-bold"
+                      className="text-[11px] font-semibold text-[#737373] transition-colors hover:text-[#ededed]"
                     >
-                      Edit
+                      Edit →
                     </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

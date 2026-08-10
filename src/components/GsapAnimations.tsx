@@ -11,21 +11,21 @@ export default function GsapAnimations() {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
-    const timer = setTimeout(() => {
+    const ctx = gsap.context(() => {
       // Animate elements with class .gsap-reveal
       const reveals = document.querySelectorAll(".gsap-reveal");
       reveals.forEach((el) => {
         gsap.fromTo(
           el,
-          { opacity: 0, y: 35 },
+          { opacity: 0, y: 25 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.8,
+            duration: 0.6,
             ease: "power2.out",
             scrollTrigger: {
               trigger: el,
-              start: "top 88%",
+              start: "top 90%",
               toggleActions: "play none none none",
             },
           }
@@ -37,13 +37,13 @@ export default function GsapAnimations() {
       if (heroEls.length > 0) {
         gsap.fromTo(
           heroEls,
-          { opacity: 0, y: 30 },
+          { opacity: 0, y: 20 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.9,
-            stagger: 0.12,
-            ease: "power3.out",
+            duration: 0.7,
+            stagger: 0.08,
+            ease: "power2.out",
           }
         );
       }
@@ -53,26 +53,26 @@ export default function GsapAnimations() {
       if (cardEls.length > 0) {
         gsap.fromTo(
           cardEls,
-          { opacity: 0, y: 30, scale: 0.97 },
+          { opacity: 0, y: 20 },
           {
             opacity: 1,
             y: 0,
-            scale: 1,
-            duration: 0.7,
-            stagger: 0.1,
+            duration: 0.5,
+            stagger: 0.06,
             ease: "power2.out",
             scrollTrigger: {
               trigger: cardEls[0],
-              start: "top 85%",
+              start: "top 90%",
             },
           }
         );
       }
-    }, 100);
+
+      ScrollTrigger.refresh();
+    });
 
     return () => {
-      clearTimeout(timer);
-      ScrollTrigger.getAll().forEach((t) => t.kill());
+      ctx.revert();
     };
   }, [pathname]);
 

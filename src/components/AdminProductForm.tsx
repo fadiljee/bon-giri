@@ -3,7 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Sparkles } from "lucide-react";
+import { ArrowLeft, Save, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
 interface CategoryOption {
   id: string;
@@ -46,24 +61,13 @@ export default function AdminProductForm({ categories, initialData }: ProductFor
     setError("");
     setLoading(true);
 
-    const payload = {
-      name,
-      description,
-      price: Number(price),
-      spiceLevel,
-      categoryId,
-      isAvailable,
-      imageUrl,
-    };
-
     try {
       const url = isEditing ? `/api/admin/products/${initialData.id}` : "/api/admin/products";
       const method = isEditing ? "PUT" : "POST";
-
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ name, description, price: Number(price), spiceLevel, categoryId, isAvailable, imageUrl }),
       });
 
       if (res.ok) {
@@ -81,169 +85,138 @@ export default function AdminProductForm({ categories, initialData }: ProductFor
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <Link
-        href="/admin/produk"
-        className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#6B6B6B] hover:text-[#005B96] transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Kembali ke Daftar Produk
-      </Link>
+    <div className="p-6 md:p-8">
+      <div className="max-w-2xl space-y-5">
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/admin/produk">
+            <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+            Kembali
+          </Link>
+        </Button>
 
-      <div
-        className="bg-white rounded-xl border border-[#E0E0E0] p-6 sm:p-8"
-        style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-      >
-        <div className="mb-6 pb-4 border-b border-[#E0E0E0]">
-          {/* Headline §3 28px bold */}
-          <h1 className="text-[28px] font-bold text-[#1A1A1A] leading-[1.15]">
-            {isEditing ? "Edit Varian Produk" : "Tambah Produk Baru"}
+        <div>
+          <h1 className="text-xl font-bold text-[#ededed]">
+            {isEditing ? "Edit Produk" : "Tambah Produk Baru"}
           </h1>
-          <p className="text-[13px] text-[#6B6B6B] mt-1">
-            Isi formulir lengkap mengenai varian stik keju Bon Giri berikut ini.
+          <p className="mt-0.5 text-[12px] text-[#525252]">
+            Isi formulir lengkap mengenai varian stik keju Bon Giri.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-lg bg-[#C81E1E]/10 border border-[#C81E1E]/30 text-[#C81E1E] text-[13px] font-semibold">
-            {error}
-          </div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              {/* Label §3: 12px medium uppercase letter-spacing 0.04em */}
-              <label className="block text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] mb-2">
-                Nama Varian Produk *
-              </label>
-              {/* Input §4.2 */}
-              <input
-                type="text"
+        <div className="rounded-xl border border-[#262626] bg-[#1a1a1a] p-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Nama */}
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Nama Varian Produk *</Label>
+              <Input
+                id="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="misal: Stik Keju Tenggiri Pedas Manis 100g"
-                className="w-full px-4 py-2.5 bg-white border border-[#E0E0E0] rounded-lg text-[14px] text-[#1A1A1A] placeholder:text-[#6B6B6B] focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20"
               />
             </div>
 
+            {/* Kategori + Level Pedas */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] mb-2">
-                  Kategori Produk *
-                </label>
-                <select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-[#E0E0E0] rounded-lg text-[14px] text-[#1A1A1A] focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="space-y-1.5">
+                <Label htmlFor="categoryId">Kategori *</Label>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger id="categoryId">
+                    <SelectValue placeholder="Pilih kategori..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-
-              <div>
-                <label className="block text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] mb-2">
-                  Level Pedas *
-                </label>
-                <select
-                  value={spiceLevel}
-                  onChange={(e) => setSpiceLevel(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white border border-[#E0E0E0] rounded-lg text-[14px] text-[#1A1A1A] focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20"
-                >
-                  <option value="Original">Original (Tidak Pedas)</option>
-                  <option value="Pedas Sedang">Pedas Sedang</option>
-                  <option value="Extra Pedas">Extra Pedas</option>
-                  <option value="Campur">Campur (Paket Combo)</option>
-                </select>
+              <div className="space-y-1.5">
+                <Label htmlFor="spiceLevel">Level Pedas *</Label>
+                <Select value={spiceLevel} onValueChange={setSpiceLevel}>
+                  <SelectTrigger id="spiceLevel">
+                    <SelectValue placeholder="Pilih level..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Original">Original</SelectItem>
+                    <SelectItem value="Pedas Sedang">Pedas Sedang</SelectItem>
+                    <SelectItem value="Extra Pedas">Extra Pedas</SelectItem>
+                    <SelectItem value="Campur">Campur (Combo)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
+            {/* Harga + Status */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] mb-2">
-                  Harga Kemasan (Rp) *
-                </label>
-                <input
+              <div className="space-y-1.5">
+                <Label htmlFor="price">Harga (Rp) *</Label>
+                <Input
+                  id="price"
                   type="number"
                   required
                   min={0}
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  className="w-full px-4 py-2.5 bg-white border border-[#E0E0E0] rounded-lg text-[14px] text-[#1A1A1A] focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20"
                 />
               </div>
-
-              <div>
-                <label className="block text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] mb-2">
-                  Status Ketersediaan Stok
-                </label>
-                <select
-                  value={isAvailable ? "true" : "false"}
-                  onChange={(e) => setIsAvailable(e.target.value === "true")}
-                  className="w-full px-4 py-2.5 bg-white border border-[#E0E0E0] rounded-lg text-[14px] text-[#1A1A1A] focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20"
-                >
-                  <option value="true">Ready Stock (Tersedia)</option>
-                  <option value="false">Stok Habis (Nonaktifkan Order)</option>
-                </select>
+              <div className="space-y-1.5">
+                <Label htmlFor="isAvailable">Status Stok</Label>
+                <div className="flex h-9 items-center gap-3 rounded-md border border-[#2a2a2a] bg-[#161616] px-3">
+                  <Switch id="isAvailable" checked={isAvailable} onCheckedChange={setIsAvailable} />
+                  <span className={`text-xs font-medium ${isAvailable ? "text-emerald-400" : "text-[#737373]"}`}>
+                    {isAvailable ? "Ready Stock" : "Stok Habis"}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] mb-2">
-                URL Gambar Produk
-              </label>
-              <input
+            {/* Image URL */}
+            <div className="space-y-1.5">
+              <Label htmlFor="imageUrl">URL Gambar Produk</Label>
+              <Input
+                id="imageUrl"
                 type="url"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://..."
-                className="w-full px-4 py-2.5 bg-white border border-[#E0E0E0] rounded-lg text-[14px] text-[#1A1A1A] placeholder:text-[#6B6B6B] focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20"
               />
-              <p className="text-[12px] text-[#A6A6A6] mt-1.5">
-                Masukkan URL foto produk yang valid. Foto akan tampil di katalog utama.
-              </p>
             </div>
 
-            <div>
-              <label className="block text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] mb-2">
-                Deskripsi Lengkap Produk *
-              </label>
-              <textarea
+            {/* Deskripsi */}
+            <div className="space-y-1.5">
+              <Label htmlFor="description">Deskripsi Produk *</Label>
+              <Textarea
+                id="description"
                 rows={4}
                 required
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Jelaskan keunikan cita rasa, komposisi, atau berat bersih..."
-                className="w-full px-4 py-2.5 bg-white border border-[#E0E0E0] rounded-lg text-[14px] text-[#1A1A1A] placeholder:text-[#6B6B6B] focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20 resize-none"
               />
             </div>
-          </div>
 
-          {/* Action buttons — btn-primary & btn-secondary §4.1 */}
-          <div className="pt-4 border-t border-[#E0E0E0] flex items-center justify-end gap-3">
-            {/* btn-secondary §4.1 */}
-            <Link
-              href="/admin/produk"
-              className="btn-secondary text-[13px]"
-            >
-              Batal
-            </Link>
-            {/* btn-primary §4.1 */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary text-[13px] px-6 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Save className="w-4 h-4" />
-              {loading ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah Produk"}
-            </button>
-          </div>
-        </form>
+            <Separator />
+
+            <div className="flex items-center justify-end gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/admin/produk">Batal</Link>
+              </Button>
+              <Button type="submit" disabled={loading} size="sm">
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                {loading ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Tambah Produk"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

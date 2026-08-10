@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { MessageSquare, Flame, Search, PackageSearch } from "lucide-react";
 
 export const revalidate = 60;
@@ -21,11 +22,6 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
   let waNumber = "6288267018426";
 
   try {
-    const dbCategories = await prisma.category.findMany({
-      orderBy: { name: "asc" },
-    });
-    categories = dbCategories || [];
-
     const whereCondition: any = {};
     if (kategori) {
       whereCondition.category = { slug: kategori };
@@ -37,20 +33,25 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
       ];
     }
 
-    const dbProducts = await prisma.product.findMany({
-      where: whereCondition,
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: "asc" }, take: 1 },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const [dbCategories, dbProducts, settings] = await Promise.all([
+      prisma.category.findMany({
+        orderBy: { name: "asc" },
+      }),
+      prisma.product.findMany({
+        where: whereCondition,
+        include: {
+          category: true,
+          images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.businessSetting.findUnique({
+        where: { id: "default" },
+      }),
+    ]);
 
+    categories = dbCategories || [];
     products = dbProducts || [];
-
-    const settings = await prisma.businessSetting.findUnique({
-      where: { id: "default" },
-    });
     if (settings?.whatsappNumber) waNumber = settings.whatsappNumber;
   } catch (error) {
     console.error("Error loading KatalogPage data from DB:", error);
@@ -161,12 +162,15 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
                       }`}
                     style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
                   >
-                    <div className="relative aspect-4/3 overflow-hidden bg-[#FFFEF3]">
-                      <Link href={`/katalog/${product.slug}`}>
-                        <img
+                    <div className="relative aspect-[3/2] overflow-hidden bg-[#FFFEF3]">
+                      <Link href={`/katalog/${product.slug}`} className="block w-full h-full relative">
+                        <Image
                           src={imgUrl}
                           alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
                         />
                       </Link>
 

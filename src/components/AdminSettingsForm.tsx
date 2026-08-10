@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save, MessageSquare, MapPin, Clock, CheckCircle2 } from "lucide-react";
+import { Save, MessageSquare, MapPin, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { InstagramIcon } from "./InstagramIcon";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 
 interface SettingsProps {
   initialData: {
@@ -34,12 +39,7 @@ export default function AdminSettingsForm({ initialData }: SettingsProps) {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          whatsappNumber,
-          address,
-          openingHours,
-          instagramHandle,
-        }),
+        body: JSON.stringify({ whatsappNumber, address, openingHours, instagramHandle }),
       });
 
       if (res.ok) {
@@ -57,107 +57,102 @@ export default function AdminSettingsForm({ initialData }: SettingsProps) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-8 shadow-xs">
-        <div className="mb-6 pb-4 border-b border-neutral-100">
-          <h1 className="text-2xl font-extrabold text-neutral-900">
-            Pengaturan Usaha & Kontak WA
-          </h1>
-          <p className="text-xs text-neutral-500 mt-1">
-            Informasi di halaman ini akan langsung memperbarui nomor WhatsApp tujuan order dan kontak di website publik.
+    <div className="p-6 md:p-8">
+      <div className="max-w-2xl space-y-5">
+        <div>
+          <h1 className="text-xl font-bold text-[#ededed]">Pengaturan Usaha</h1>
+          <p className="mt-0.5 text-[12px] text-[#525252]">
+            Perbarui informasi kontak WhatsApp dan detail usaha yang tampil di website publik.
           </p>
         </div>
 
         {success && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Pengaturan usaha berhasil diperbarui!</span>
-          </div>
+          <Alert variant="success">
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertDescription className="font-semibold">
+              Pengaturan berhasil disimpan!
+            </AlertDescription>
+          </Alert>
         )}
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
-            {error}
-          </div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="font-semibold">{error}</AlertDescription>
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <MessageSquare className="w-4 h-4 text-emerald-600" />
+        <div className="rounded-xl border border-[#262626] bg-[#1a1a1a] p-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="wa-number" className="flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-emerald-500" />
                 Nomor WhatsApp Tujuan Order *
-              </label>
-              <input
-                type="text"
+              </Label>
+              <Input
+                id="wa-number"
                 required
                 value={whatsappNumber}
                 onChange={(e) => setWhatsappNumber(e.target.value)}
                 placeholder="6288267018426"
-                className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
-              <p className="text-[11px] text-neutral-400 mt-1">
-                Gunakan format internasional tanpa tanda tanda plus/spasi (contoh: <strong>6288267018426</strong>).
+              <p className="text-[10px] text-[#525252]">
+                Format internasional tanpa + atau spasi (contoh: <span className="text-[#737373]">6288267018426</span>).
               </p>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-amber-600" />
-                Alamat Produksi / Usaha *
-              </label>
-              <input
-                type="text"
+            <div className="space-y-1.5">
+              <Label htmlFor="address" className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-[#525252]" />
+                Alamat Usaha *
+              </Label>
+              <Input
+                id="address"
                 required
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Pangkalpinang, Kepulauan Bangka Belitung"
-                className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-amber-600" />
-                Jam Layanan / Operasional *
-              </label>
-              <input
-                type="text"
+            <div className="space-y-1.5">
+              <Label htmlFor="opening-hours" className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#525252]" />
+                Jam Operasional *
+              </Label>
+              <Input
+                id="opening-hours"
                 required
                 value={openingHours}
                 onChange={(e) => setOpeningHours(e.target.value)}
                 placeholder="Senin - Sabtu: 08.00 - 17.00 WIB"
-                className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <InstagramIcon className="w-4 h-4 text-pink-600" />
-                Username Instagram Usaha *
-              </label>
-              <input
-                type="text"
+            <div className="space-y-1.5">
+              <Label htmlFor="instagram" className="flex items-center gap-1.5">
+                <InstagramIcon className="w-3.5 h-3.5 text-[#525252]" />
+                Username Instagram *
+              </Label>
+              <Input
+                id="instagram"
                 required
                 value={instagramHandle}
                 onChange={(e) => setInstagramHandle(e.target.value)}
                 placeholder="stikkeju.bongiri_"
-                className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
-          </div>
 
-          <div className="pt-4 border-t border-neutral-100 flex justify-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary text-xs font-bold px-6 py-2.5 shadow-sm disabled:opacity-50"
-            >
-              <Save className="w-4 h-4 mr-1.5" />
-              {loading ? "Menyimpan..." : "Simpan Pengaturan"}
-            </button>
-          </div>
-        </form>
+            <Separator />
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loading} size="sm">
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                {loading ? "Menyimpan..." : "Simpan Pengaturan"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

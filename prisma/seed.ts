@@ -87,7 +87,7 @@ async function main() {
       createdById: adminUser.id,
       images: [
         {
-          url: "/images/products/original.png",
+          url: "/images/products/original.webp",
           altText: "Stik Keju Original 100g",
           sortOrder: 0,
         },
@@ -105,7 +105,7 @@ async function main() {
       createdById: adminUser.id,
       images: [
         {
-          url: "/images/products/balado.png",
+          url: "/images/products/balado.webp",
           altText: "Stik Keju Balado 100g",
           sortOrder: 0,
         },
@@ -123,7 +123,7 @@ async function main() {
       createdById: adminUser.id,
       images: [
         {
-          url: "/images/products/bbq.png",
+          url: "/images/products/bbq.webp",
           altText: "Stik Keju BBQ 100g",
           sortOrder: 0,
         },
@@ -141,7 +141,7 @@ async function main() {
       createdById: adminUser.id,
       images: [
         {
-          url: "/images/products/rumput-laut.png",
+          url: "/images/products/rumput-laut.webp",
           altText: "Stik Keju Rumput Laut 100g",
           sortOrder: 0,
         },

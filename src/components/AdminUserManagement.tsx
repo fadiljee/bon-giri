@@ -2,7 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UserPlus, Shield, User, Mail, Lock } from "lucide-react";
+import { UserPlus, User, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UserItem {
   id: string;
@@ -12,11 +25,7 @@ interface UserItem {
   createdAt: Date;
 }
 
-export default function AdminUserManagement({
-  initialUsers,
-}: {
-  initialUsers: UserItem[];
-}) {
+export default function AdminUserManagement({ initialUsers }: { initialUsers: UserItem[] }) {
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -44,10 +53,8 @@ export default function AdminUserManagement({
       if (res.ok) {
         const newUser = await res.json();
         setUsers((prev) => [newUser, ...prev]);
-        setSuccess(`Akun staff ${name} berhasil ditambahkan!`);
-        setName("");
-        setEmail("");
-        setPassword("");
+        setSuccess(`Akun ${name} berhasil ditambahkan!`);
+        setName(""); setEmail(""); setPassword("");
         setShowAddForm(false);
         router.refresh();
       } else {
@@ -62,155 +69,125 @@ export default function AdminUserManagement({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-neutral-200 shadow-xs">
+    <div className="p-6 md:p-8 space-y-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-neutral-900">Manajemen Pengguna Staff</h1>
-          <p className="text-xs text-neutral-500 mt-1">
-            Kelola akun internal yang memiliki akses login ke Admin Panel Bon Giri.
+          <h1 className="text-xl font-bold text-[#ededed]">Manajemen Staff</h1>
+          <p className="mt-0.5 text-[12px] text-[#525252]">
+            Kelola akun internal yang memiliki akses ke Admin Panel Bon Giri.
           </p>
         </div>
-
-        <button
+        <Button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="btn-primary text-xs font-bold px-4 py-2.5 shadow-sm"
+          variant="default"
+          size="sm"
         >
-          <UserPlus className="w-4 h-4 mr-1.5" />
-          {showAddForm ? "Tutup Form" : "Tambah Akun Staff Baru"}
-        </button>
+          <UserPlus className="w-3.5 h-3.5 mr-1.5" />
+          {showAddForm ? "Tutup Form" : "Tambah Akun"}
+        </Button>
       </div>
 
+      {/* Success */}
       {success && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
-          {success}
-        </div>
+        <Alert variant="success">
+          <CheckCircle2 className="h-4 w-4" />
+          <AlertDescription className="font-semibold">{success}</AlertDescription>
+        </Alert>
       )}
 
+      {/* Add Form */}
       {showAddForm && (
-        <div className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-xs max-w-xl space-y-4">
-          <h3 className="font-bold text-neutral-900 text-base border-b border-neutral-100 pb-3">
-            Form Akun Staff Baru
-          </h3>
+        <div className="rounded-xl border border-[#262626] bg-[#1a1a1a] p-6">
+          <p className="text-[13px] font-semibold text-[#ededed] mb-4">Akun Staff Baru</p>
 
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 text-red-700 text-xs font-bold">
-              {error}
-            </div>
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="font-semibold">{error}</AlertDescription>
+            </Alert>
           )}
 
           <form onSubmit={handleCreateUser} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
-                Nama Lengkap *
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="misal: Budi Pratama"
-                className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="staff-name">Nama Lengkap *</Label>
+                <Input id="staff-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Budi Pratama" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="staff-email">Email Akses *</Label>
+                <Input id="staff-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="budi@bongiri.com" />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
-                Email Pengguna *
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="budi@bongiri.com"
-                className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="staff-password">Password *</Label>
+                <Input id="staff-password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min. 6 karakter" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="staff-role">Role *</Label>
+                <Select value={role} onValueChange={setRole}>
+                  <SelectTrigger id="staff-role">
+                    <SelectValue placeholder="Pilih role..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="STAFF">STAFF — CRUD produk</SelectItem>
+                    <SelectItem value="ADMIN">ADMIN — Akses penuh</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
-                Password Akses *
-              </label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimal 6 karakter"
-                className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold"
-              />
-            </div>
+            <Separator />
 
-            <div>
-              <label className="block text-xs font-bold text-neutral-700 uppercase tracking-wider mb-1">
-                Role Akses *
-              </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full px-4 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-semibold"
-              >
-                <option value="STAFF">STAFF (CRUD produk, tanpa hapus permanen)</option>
-                <option value="ADMIN">ADMIN (Akses penuh termasuk hapus & user)</option>
-              </select>
-            </div>
-
-            <div className="pt-2 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowAddForm(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold border border-neutral-200"
-              >
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(false)}>
                 Batal
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary text-xs font-bold px-5 py-2"
-              >
+              </Button>
+              <Button type="submit" disabled={loading} size="sm">
                 {loading ? "Memproses..." : "Buat Akun"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
       )}
 
       {/* Users Table */}
-      <div className="bg-white rounded-3xl border border-neutral-200 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 uppercase font-bold tracking-wider">
-              <tr>
-                <th className="py-4 px-6">Nama Staff</th>
-                <th className="py-4 px-6">Email Akses</th>
-                <th className="py-4 px-6">Role Portal</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 font-medium text-neutral-800">
-              {users.map((u) => (
-                <tr key={u.id} className="hover:bg-neutral-50/80 transition-colors">
-                  <td className="py-4 px-6 font-bold text-neutral-900 flex items-center gap-2">
-                    <User className="w-4 h-4 text-amber-600" />
-                    {u.name}
-                  </td>
-                  <td className="py-4 px-6">{u.email}</td>
-                  <td className="py-4 px-6">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase ${
-                        u.role === "ADMIN"
-                          ? "bg-amber-100 text-amber-900 border border-amber-300"
-                          : "bg-sky-100 text-sky-900 border border-sky-300"
-                      }`}
-                    >
-                      {u.role}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="rounded-xl border border-[#262626] bg-[#1a1a1a] overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nama Staff</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Role</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((u) => (
+              <TableRow key={u.id}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 text-[#525252] shrink-0" />
+                    <span className="font-semibold text-[#ededed]">{u.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="font-mono text-[12px] text-[#737373]">{u.email}</span>
+                </TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center rounded px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide border ${
+                    u.role === "ADMIN"
+                      ? "bg-[#FDB813]/10 text-[#FDB813] border-[#FDB813]/20"
+                      : "bg-[#1f1f1f] text-[#737373] border-[#2a2a2a]"
+                  }`}>
+                    {u.role}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 import { CheckCircle2, MapPin, Fish, UtensilsCrossed, GraduationCap } from "lucide-react";
 
 export default function TentangPage() {
@@ -54,11 +55,13 @@ export default function TentangPage() {
                 </div>
               </div>
 
-              <div className="aspect-4/3 rounded-xl overflow-hidden border border-[#E0E0E0] bg-[#FFFEF3]">
-                <img
-                  src="/images/products/original.png"
+              <div className="aspect-[3/2] rounded-xl overflow-hidden border border-[#E0E0E0] bg-[#FFFEF3] relative">
+                <Image
+                  src="/images/products/original.webp"
                   alt="Usaha Bon Giri Stik Keju"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
                 />
               </div>
             </div>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
@@ -11,22 +12,22 @@ export default async function Home() {
   let waNumber = "6288267018426";
 
   try {
-    const dbProducts = await prisma.product.findMany({
-      where: { isAvailable: true },
-      take: 4,
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: "asc" }, take: 1 },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const [dbProducts, settings] = await Promise.all([
+      prisma.product.findMany({
+        where: { isAvailable: true },
+        take: 4,
+        include: {
+          category: true,
+          images: { orderBy: { sortOrder: "asc" }, take: 1 },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.businessSetting.findUnique({
+        where: { id: "default" },
+      }),
+    ]);
 
     featuredProducts = dbProducts || [];
-
-    const settings = await prisma.businessSetting.findUnique({
-      where: { id: "default" },
-    });
-
     if (settings?.whatsappNumber) {
       waNumber = settings.whatsappNumber;
     }
@@ -40,73 +41,63 @@ export default async function Home() {
       <main className="flex-1 bg-white">
 
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden bg-[#FFFDD0] pt-14 pb-20 md:pt-20 md:pb-28">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-30"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, #FDB813 1px, transparent 1px)",
-              backgroundSize: "32px 32px",
-            }}
-          />
-
+        <section className="relative overflow-hidden bg-white pt-12 pb-20 md:pt-16 md:pb-28">
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
               {/* Text Area */}
-              <div className="lg:col-span-7 space-y-6 text-center lg:text-left gsap-hero">
-                <div className="inline-flex items-center gap-1.5 bg-[#E2B024] text-[#1A1A1A] rounded-full px-3.5 py-1.5 text-[12px] font-bold uppercase tracking-[0.04em]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#1A1A1A]" />
+              <div className="lg:col-span-7 space-y-7 text-left gsap-hero">
+                {/* <div className="inline-flex items-center gap-2 bg-[#FFFDD0] border border-[#FDD273]/80 text-[#8C6300] rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4 text-[#D48806]" />
                   Inovasi Otentik Bangka Belitung
-                </div>
+                </div> */}
 
-                <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-bold text-[#1A1A1A] leading-[1.15]">
-                  Sensasi Gurih Renyah{" "}
-                  <span className="text-[#005B96]">
-                    Stik Keju Tulang Ikan Tenggiri
-                  </span>
+                <h1 className="text-4xl sm:text-5xl lg:text-[58px] font-extrabold text-[#1A1A1A] tracking-tight leading-[1.1]">
+                  Stik Keju{" "}
+                  <span className="text-[#005B96] font-black">
+                    Ikan Tenggiri
+                  </span>{" "}
+                  Renyah & Kaya Kalsium.
                 </h1>
 
-                <p className="text-[16px] text-[#3D3D3D] leading-[1.6] max-w-2xl mx-auto lg:mx-0">
-                  Camilan bergizi kaya kalsium alami dari tepung tulang ikan tenggiri khas
-                  Kepulauan Bangka Belitung. Renyah, gurih keju melimpah, cocok untuk teman
-                  santai kapan saja.
+                <p className="text-[17px] text-[#3D3D3D] leading-[1.7] max-w-2xl font-normal">
+                  Camilan gurih renyah berbahan dasar keju berkualitas dan kalsium alami dari
+                  tepung tulang ikan tenggiri khas Kepulauan Bangka Belitung binaan KLK Kewirausahaan Universitas Bangka Belitung.
                 </p>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                  <Link
-                    href="/katalog"
-                    className="btn-primary text-[15px] px-7 py-3.5 shadow-md hover:shadow-lg w-full sm:w-auto"
-                  >
-                    Lihat Semua Varian
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                   <a
                     href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
                       "Halo Bon Giri, saya berminat memesan stik keju ikan tenggiri!"
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="wa-btn text-[15px] px-7 py-3.5 w-full sm:w-auto"
+                    className="wa-btn text-sm font-bold uppercase tracking-wider px-8 py-4 justify-center"
                   >
-                    <MessageSquare className="w-5 h-5 fill-white" />
-                    Pesan Langsung WA
+                    <MessageSquare className="w-4 h-4 fill-white" />
+                    Pesan via WhatsApp
                   </a>
+
+                  <Link
+                    href="/katalog"
+                    className="inline-flex items-center justify-center gap-2 text-[#1A1A1A] font-bold text-sm hover:text-[#005B96] border-b-2 border-neutral-300 hover:border-[#005B96] pb-1 pt-1 transition-all"
+                  >
+                    Lihat Semua Varian
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
 
                 {/* Trust Badges */}
-                <div className="pt-6 grid grid-cols-3 gap-4 border-t border-[#FDB813]/40 max-w-lg mx-auto lg:mx-0 text-left">
+                <div className="pt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-neutral-200/80 text-left">
                   {[
                     "Kaya Kalsium Alami",
-                    "Minyak Nabati Bersih",
-                    "100% Produk Lokal UBB",
+                    "Renyah Tanpa Bau Amis",
+                    "100% Bina UBB",
                   ].map((badge) => (
                     <div key={badge} className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-[#005B96] shrink-0" />
-                      <span className="text-[12px] font-semibold text-[#3D3D3D]">
+                      <span className="text-xs font-semibold text-[#3D3D3D]">
                         {badge}
                       </span>
                     </div>
@@ -114,50 +105,54 @@ export default async function Home() {
                 </div>
               </div>
 
-              {/* Hero Image */}
+              {/* Hero Image Showcase */}
               <div className="lg:col-span-5 gsap-hero">
                 <div className="relative mx-auto max-w-md lg:max-w-none">
-                  <div className="aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-[#FEEBB8] relative group">
-                    <img
-                      src="/images/products/original.png"
+                  <div className="aspect-[3/2] rounded-2xl overflow-hidden shadow-lg border border-neutral-200/70 bg-neutral-50 relative group">
+                    <Image
+                      src="/images/products/original.webp"
                       alt="Bon Giri Stik Keju Ikan Tenggiri Original"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 45vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/70 via-transparent to-transparent flex items-end p-6">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent flex items-end p-6 pointer-events-none">
                       <div className="text-white">
-                        <span className="tag-filled text-[11px]">
+                        <span className="bg-[#FDB813] text-[#1A1A1A] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md inline-block">
                           Best Seller
                         </span>
                         <h3 className="text-xl font-bold mt-2">
                           Stik Keju Tenggiri Original
                         </h3>
-                        <p className="text-[12px] text-[#FDD273] mt-0.5">
-                          Gurih Keju Asli & Kalsium Ikan Tenggiri
+                        <p className="text-xs text-[#FDD273] mt-0.5 font-medium">
+                          Gurih Keju Asli & Nutrisi Tulang Tenggiri
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </section>
 
         {/* FEATURED PRODUCTS SECTION */}
-        <section className="py-16 bg-white">
+        <section className="py-20 bg-neutral-50/60 border-t border-b border-neutral-200/50">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gsap-reveal">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gsap-reveal">
               <div>
-                <span className="tag-filled text-[11px]">
+                <span className="text-[#005B96] text-xs font-bold uppercase tracking-widest block mb-2">
                   Katalog Terfavorit
                 </span>
-                <h2 className="text-[32px] font-bold text-[#1A1A1A] mt-3 leading-[1.15]">
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1A1A1A] tracking-tight">
                   Varian Bon Giri Pilihan
                 </h2>
               </div>
               <Link
                 href="/katalog"
-                className="mt-3 sm:mt-0 text-[13px] font-bold text-[#005B96] hover:text-[#003D5C] flex items-center gap-1 group transition-colors"
+                className="mt-4 sm:mt-0 text-sm font-bold text-[#005B96] hover:text-[#003D5C] flex items-center gap-1.5 group transition-colors"
               >
                 Lihat Selengkapnya di Katalog
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -172,7 +167,7 @@ export default async function Home() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {featuredProducts.map((product) => {
                   const imgUrl =
-                    product.images[0]?.url || "/images/products/original.png";
+                    product.images[0]?.url || "/images/products/original.webp";
 
                   const waMessage = encodeURIComponent(
                     `Halo Bon Giri, saya ingin memesan produk: *${product.name}* (Harga: Rp ${product.price.toLocaleString("id-ID")})`
@@ -181,20 +176,24 @@ export default async function Home() {
                   return (
                     <div
                       key={product.id}
-                      className="gsap-card flex flex-col bg-white rounded-xl border border-[#E0E0E0] overflow-hidden hover:shadow-lg transition-all duration-200 group"
-                      style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
+                      className="gsap-card flex flex-col bg-white rounded-xl border border-neutral-200/80 overflow-hidden hover:shadow-md hover:border-[#005B96]/40 transition-all duration-300 group"
                     >
-                      <div className="relative aspect-4/3 overflow-hidden bg-[#FFFEF3]">
-                        <img
-                          src={imgUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold text-[#1A1A1A] shadow-sm">
+                      <div className="relative aspect-[3/2] overflow-hidden bg-[#FFFEF3]">
+                        <Link href={`/katalog/${product.slug}`} className="block w-full h-full relative">
+                          <Image
+                            src={imgUrl}
+                            alt={product.name}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        </Link>
+                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-md text-[11px] font-bold text-[#1A1A1A] shadow-2xs">
                           {product.category.name}
                         </div>
                         {product.spiceLevel && (
-                          <div className="absolute top-3 right-3 tag-filled text-[10px] gap-1">
+                          <div className="absolute top-3 right-3 bg-[#E2B024] text-[#1A1A1A] text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
                             <Flame className="w-3 h-3" />
                             {product.spiceLevel}
                           </div>
@@ -202,19 +201,19 @@ export default async function Home() {
                       </div>
 
                       <div className="p-5 flex flex-col flex-1">
-                        <h3 className="font-semibold text-[19px] text-[#1A1A1A] leading-snug line-clamp-2">
+                        <h3 className="font-bold text-lg text-[#1A1A1A] leading-snug line-clamp-2">
                           {product.name}
                         </h3>
-                        <p className="text-[13px] text-[#6B6B6B] mt-1.5 line-clamp-2 flex-1 leading-[1.6]">
+                        <p className="text-xs text-[#6B6B6B] mt-2 line-clamp-2 flex-1 leading-relaxed">
                           {product.description}
                         </p>
 
-                        <div className="mt-4 pt-3 border-t border-[#E0E0E0] flex items-center justify-between">
+                        <div className="mt-5 pt-3 border-t border-neutral-100 flex items-center justify-between gap-2">
                           <div>
-                            <span className="text-[12px] text-[#A6A6A6] font-medium uppercase tracking-[0.04em] block leading-none">
+                            <span className="text-[11px] text-[#A6A6A6] font-semibold uppercase tracking-wider block leading-none">
                               Harga Kemasan
                             </span>
-                            <span className="text-[18px] font-bold text-[#FDB813] leading-tight">
+                            <span className="text-base font-bold text-[#FDB813] leading-tight mt-0.5 block">
                               Rp {product.price.toLocaleString("id-ID")}
                             </span>
                           </div>
@@ -223,7 +222,7 @@ export default async function Home() {
                             href={`https://wa.me/${waNumber}?text=${waMessage}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="wa-btn py-2 px-3.5 text-[12px] font-bold"
+                            className="wa-btn py-2 px-3.5 text-xs font-bold shadow-2xs"
                             title="Pesan via WhatsApp"
                           >
                             <MessageSquare className="w-3.5 h-3.5 fill-white" />
@@ -240,16 +239,16 @@ export default async function Home() {
         </section>
 
         {/* KEUNGGULAN SECTION */}
-        <section className="py-16 bg-[#1A1A1A] text-white relative overflow-hidden">
+        <section className="py-20 bg-white relative overflow-hidden">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-14 gsap-reveal">
-              <span className="tag-filled text-[11px] mb-4 inline-flex">
-                Keunggulan Produk
+              <span className="text-[#005B96] text-xs font-bold uppercase tracking-widest block mb-2">
+                Keunggulan Utama
               </span>
-              <h2 className="text-[32px] sm:text-[38px] font-bold mt-3 leading-[1.15]">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1A1A1A] tracking-tight">
                 Mengapa Memilih Stik Keju Bon Giri?
               </h2>
-              <p className="text-[#A6A6A6] mt-3 text-[15px] leading-[1.6]">
+              <p className="text-[#6B6B6B] mt-3 text-base leading-relaxed">
                 Inovasi pengolahan tulang ikan tenggiri menjadi camilan stik keju tinggi nutrisi
                 dan cita rasa otentik khas Bangka Belitung.
               </p>
@@ -277,15 +276,15 @@ export default async function Home() {
                 return (
                   <div
                     key={item.title}
-                    className="gsap-reveal bg-[#3D3D3D]/40 border border-white/10 p-7 rounded-xl space-y-3 hover:border-[#FDB813]/40 transition-colors"
+                    className="gsap-reveal bg-[#FFFEF3] border border-[#FDD273]/50 p-8 rounded-2xl space-y-4 hover:border-[#005B96]/40 hover:bg-white hover:shadow-md transition-all duration-300"
                   >
                     <div className="w-12 h-12 rounded-xl bg-[#FDB813]/20 flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-[#FDB813]" />
+                      <Icon className="w-6 h-6 text-[#8C6300]" />
                     </div>
-                    <h3 className="text-[19px] font-semibold text-white">
+                    <h3 className="text-xl font-bold text-[#1A1A1A]">
                       {item.title}
                     </h3>
-                    <p className="text-[15px] text-[#A6A6A6] leading-[1.6]">
+                    <p className="text-sm text-[#3D3D3D] leading-relaxed">
                       {item.body}
                     </p>
                   </div>

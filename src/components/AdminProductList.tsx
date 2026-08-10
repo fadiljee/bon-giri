@@ -2,7 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Edit2, Trash2, CheckCircle2, XCircle, Plus, Search, Eye } from "lucide-react";
+import { Edit2, Trash2, Plus, Search, Eye, AlertCircle } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ProductItem {
   id: string;
@@ -11,9 +25,7 @@ interface ProductItem {
   price: number;
   spiceLevel: string;
   isAvailable: boolean;
-  category: {
-    name: string;
-  };
+  category: { name: string };
   updatedAt: Date;
 }
 
@@ -27,6 +39,8 @@ export default function AdminProductList({
   const [products, setProducts] = useState(initialProducts);
   const [search, setSearch] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ProductItem | null>(null);
+  const [deleteError, setDeleteError] = useState("");
 
   const filtered = products.filter(
     (p) =>
@@ -42,7 +56,6 @@ export default function AdminProductList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isAvailable: !currentStatus }),
       });
-
       if (res.ok) {
         setProducts((prev) =>
           prev.map((p) => (p.id === id ? { ...p, isAvailable: !currentStatus } : p))
@@ -57,211 +70,182 @@ export default function AdminProductList({
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     if (userRole !== "ADMIN") {
-      alert("Hanya Admin Utama yang berhak menghapus produk secara permanen.");
+      setDeleteError("Hanya Admin Utama yang berhak menghapus produk secara permanen.");
       return;
     }
-
-    if (!confirm(`Apakah Anda yakin ingin menghapus produk "${name}"?`)) return;
-
-    setLoadingId(id);
+    setDeleteError("");
+    setLoadingId(deleteTarget.id);
     try {
-      const res = await fetch(`/api/admin/products/${id}`, {
-        method: "DELETE",
-      });
-
+      const res = await fetch(`/api/admin/products/${deleteTarget.id}`, { method: "DELETE" });
       if (res.ok) {
-        setProducts((prev) => prev.filter((p) => p.id !== id));
+        setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+        setDeleteTarget(null);
       } else {
-        alert("Gagal menghapus produk");
+        setDeleteError("Gagal menghapus produk. Coba lagi.");
       }
     } catch {
-      alert("Terjadi kesalahan koneksi server");
+      setDeleteError("Terjadi kesalahan koneksi server.");
     } finally {
       setLoadingId(null);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Bar */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[#E0E0E0]"
-        style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-      >
+    <div className="p-6 md:p-8 space-y-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          {/* Headline §3 */}
-          <h1 className="text-[28px] font-bold text-[#1A1A1A] leading-[1.15]">
-            Kelola Produk Bon Giri
-          </h1>
-          <p className="text-[13px] text-[#6B6B6B] mt-1">
-            Tambah varian rasa baru, ubah harga, atau ganti status ketersediaan stok.
+          <h1 className="text-xl font-bold text-[#ededed]">Kelola Produk</h1>
+          <p className="mt-0.5 text-[12px] text-[#525252]">
+            Tambah varian rasa, ubah harga, atau ganti status ketersediaan stok.
           </p>
         </div>
-
-        {/* btn-primary §4.1 */}
-        <Link href="/admin/produk/tambah" className="btn-primary text-[13px] font-bold px-5 py-2.5">
-          <Plus className="w-4 h-4" />
-          Tambah Produk Baru
-        </Link>
+        <Button asChild variant="default" size="sm">
+          <Link href="/admin/produk/tambah">
+            <Plus className="w-3.5 h-3.5 mr-1.5" />
+            Tambah Produk
+          </Link>
+        </Button>
       </div>
 
-      {/* Filter & Search §4.2 */}
-      <div
-        className="bg-white p-4 rounded-xl border border-[#E0E0E0] flex items-center justify-between gap-4"
-        style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-      >
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
+      {/* Search + count */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#525252] pointer-events-none" />
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama produk atau kategori..."
-            className="w-full pl-9 pr-4 py-2.5 text-[13px] bg-white border border-[#E0E0E0] rounded-lg focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20 text-[#1A1A1A] placeholder:text-[#6B6B6B]"
+            placeholder="Cari produk atau kategori..."
+            className="pl-9 text-xs h-8"
           />
         </div>
-        <span className="text-[12px] font-medium text-[#6B6B6B] uppercase tracking-[0.04em] whitespace-nowrap">
-          Total: {filtered.length} produk
-        </span>
+        <span className="shrink-0 text-[11px] text-[#525252]">{filtered.length} produk</span>
       </div>
 
-      {/* Table */}
-      <div
-        className="bg-white rounded-xl border border-[#E0E0E0] overflow-hidden"
-        style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead className="bg-[#FFFEF3] border-b border-[#E0E0E0]">
-              <tr>
-                <th className="py-4 px-5 text-[11px] font-bold text-[#6B6B6B] uppercase tracking-[0.08em]">
-                  Nama Varian
-                </th>
-                <th className="py-4 px-5 text-[11px] font-bold text-[#6B6B6B] uppercase tracking-[0.08em]">
-                  Kategori
-                </th>
-                <th className="py-4 px-5 text-[11px] font-bold text-[#6B6B6B] uppercase tracking-[0.08em]">
-                  Harga
-                </th>
-                <th className="py-4 px-5 text-[11px] font-bold text-[#6B6B6B] uppercase tracking-[0.08em]">
-                  Level Pedas
-                </th>
-                <th className="py-4 px-5 text-[11px] font-bold text-[#6B6B6B] uppercase tracking-[0.08em]">
-                  Status Stok
-                </th>
-                <th className="py-4 px-5 text-[11px] font-bold text-[#6B6B6B] uppercase tracking-[0.08em] text-right">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E0E0E0] text-[#1A1A1A]">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center text-[#6B6B6B] font-semibold">
-                    Tidak ada produk ditemukan.
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#FFFEF3] transition-colors">
-                    {/* Product Name — subheading semibold */}
-                    <td className="py-4 px-5 font-semibold text-[#1A1A1A] max-w-[200px]">
-                      <span className="line-clamp-2">{p.name}</span>
-                    </td>
-
-                    {/* Category — tag-outlined */}
-                    <td className="py-4 px-5">
-                      <span className="tag-outlined text-[11px]">
-                        {p.category.name}
-                      </span>
-                    </td>
-
-                    {/* Price — primary-500 */}
-                    <td className="py-4 px-5 font-bold text-[#FDB813]">
+      {/* Table Card */}
+      <div className="rounded-xl border border-[#262626] bg-[#1a1a1a] overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nama Varian</TableHead>
+              <TableHead>Kategori</TableHead>
+              <TableHead>Harga</TableHead>
+              <TableHead>Level Pedas</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="py-12 text-center text-[#525252]">
+                  Tidak ada produk ditemukan.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell>
+                    <span className="font-semibold text-[#ededed] line-clamp-1">{p.name}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-[11px] text-[#737373]">{p.category.name}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono text-[12px] font-semibold text-[#a3a3a3]">
                       Rp {p.price.toLocaleString("id-ID")}
-                    </td>
-
-                    {/* Spice Level — tag-filled or none */}
-                    <td className="py-4 px-5">
-                      {p.spiceLevel ? (
-                        <span className="tag-filled text-[10px]">
-                          {p.spiceLevel}
-                        </span>
-                      ) : (
-                        <span className="text-[#A6A6A6]">—</span>
-                      )}
-                    </td>
-
-                    {/* Stock Toggle — action-btn-olive (available) / red (unavailable) §4.5 */}
-                    <td className="py-4 px-5">
-                      <button
-                        onClick={() => toggleAvailability(p.id, p.isAvailable)}
-                        disabled={loadingId === p.id}
-                        title="Klik untuk mengubah status stok"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
-                          p.isAvailable
-                            ? "bg-[#4A6B1F]/15 text-[#4A6B1F] hover:bg-[#4A6B1F]/25"
-                            : "bg-[#C81E1E]/15 text-[#C81E1E] hover:bg-[#C81E1E]/25"
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {p.spiceLevel ? (
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide bg-amber-950/40 text-amber-400 border border-amber-900/40">
+                        {p.spiceLevel}
+                      </span>
+                    ) : (
+                      <span className="text-[#3a3a3a]">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <button
+                      disabled={loadingId === p.id}
+                      onClick={() => toggleAvailability(p.id, p.isAvailable)}
+                      className={`inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border transition-opacity disabled:opacity-50 cursor-pointer hover:opacity-80 ${
+                        p.isAvailable
+                          ? "bg-emerald-950/50 text-emerald-400 border-emerald-900/50"
+                          : "bg-red-950/50 text-red-400 border-red-900/50"
+                      }`}
+                    >
+                      {loadingId === p.id ? "..." : p.isAvailable ? "Ready" : "Habis"}
+                    </button>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/katalog/${p.slug}`}
+                        target="_blank"
+                        className="text-[11px] text-[#525252] hover:text-[#a3a3a3] transition-colors"
+                        title="Lihat di katalog"
                       >
-                        {p.isAvailable ? (
-                          <>
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Ready Stock
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-3.5 h-3.5" />
-                            Stok Habis
-                          </>
-                        )}
-                      </button>
-                    </td>
-
-                    {/* Action Buttons §4.5 — icon 32px bulat */}
-                    <td className="py-4 px-5">
-                      <div className="flex items-center gap-2 justify-end">
-                        {/* View — action-btn-blue */}
-                        <Link
-                          href={`/katalog/${p.slug}`}
-                          target="_blank"
-                          className="action-btn-blue"
-                          title="Lihat Produk"
+                        <Eye className="w-3.5 h-3.5" />
+                      </Link>
+                      <Link
+                        href={`/admin/produk/edit/${p.id}`}
+                        className="text-[11px] text-[#525252] hover:text-[#ededed] transition-colors"
+                        title="Edit produk"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </Link>
+                      {userRole === "ADMIN" && (
+                        <button
+                          onClick={() => { setDeleteError(""); setDeleteTarget(p); }}
+                          disabled={loadingId === p.id}
+                          className="text-[#525252] hover:text-red-400 transition-colors disabled:opacity-50"
+                          title="Hapus produk"
                         >
-                          <Eye className="w-4 h-4" />
-                        </Link>
-
-                        {/* Edit — action-btn-gold */}
-                        <Link
-                          href={`/admin/produk/edit/${p.id}`}
-                          className="action-btn-gold"
-                          title="Edit Produk"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Link>
-
-                        {/* Delete — action-btn-red (ADMIN only) */}
-                        {userRole === "ADMIN" && (
-                          <button
-                            onClick={() => handleDelete(p.id, p.name)}
-                            disabled={loadingId === p.id}
-                            className="action-btn-red"
-                            title="Hapus Produk"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Konfirmasi Hapus Produk</DialogTitle>
+            <DialogDescription>
+              Hapus produk{" "}
+              <strong className="text-[#ededed]">"{deleteTarget?.name}"</strong> secara permanen?
+              Tindakan ini tidak dapat dibatalkan.
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{deleteError}</AlertDescription>
+            </Alert>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={!!loadingId}>
+              {loadingId ? "Menghapus..." : "Ya, Hapus"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
