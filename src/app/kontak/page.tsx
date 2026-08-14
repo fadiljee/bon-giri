@@ -1,6 +1,6 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import MobileAppShell from "@/components/MobileAppShell";
 import { prisma } from "@/lib/prisma";
+import Image from "next/image";
 import { MessageSquare, MapPin, Clock } from "lucide-react";
 import { InstagramIcon } from "@/components/InstagramIcon";
 
@@ -27,115 +27,92 @@ export default async function KontakPage() {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="flex-1 bg-white py-12">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <MobileAppShell>
+      {/* Tab Title */}
+      <div className="bg-[#FFF9E6] px-4 py-2 text-center border-b border-[var(--color-muted)]/10">
+        <span className="text-[14px] font-bold text-[var(--color-charcoal)]">Kontak</span>
+      </div>
 
-          {/* Page Header */}
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="tag-filled text-[11px]">
-              Layanan Pelanggan
-            </span>
-            <h1 className="text-[32px] sm:text-[38px] font-bold text-[#1A1A1A] mt-3 leading-[1.15]">
-              Kontak Usaha Bon Giri
-            </h1>
-            <p className="text-[15px] text-[#6B6B6B] mt-2 leading-[1.6]">
-              Punya pertanyaan mengenai pesanan, reseller, atau paket khusus? Hubungi tim Bon
-              Giri secara langsung.
-            </p>
-          </div>
+      <div className="flex flex-col bg-[#FFF9E6] min-h-screen pb-32">
+        {/* Header Image */}
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/9]">
+          <Image
+            src="/images/products/original.webp"
+            alt="Kontak Bon Giri"
+            fill
+            sizes="(max-width: 480px) 100vw, 480px"
+            className="object-cover"
+          />
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Content Area */}
+        <div className="px-5 pt-8">
+          <h1 className="font-display text-[26px] font-bold text-[var(--color-charcoal)] mb-2">
+            Kunjungi Kami
+          </h1>
+          <p className="text-[14px] text-[var(--color-charcoal-soft)] leading-relaxed mb-8">
+            Punya pertanyaan mengenai pesanan, reseller, atau paket khusus? Hubungi tim Bon Giri secara langsung.
+          </p>
 
-            {/* WhatsApp Box */}
-            <div
-              className="bg-white rounded-xl border border-[#E0E0E0] p-7 flex flex-col justify-between space-y-6"
-              style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-            >
-              <div className="space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 fill-emerald-600" />
-                </div>
-                <h2 className="text-[20px] font-semibold text-[#1A1A1A]">
-                  Pemesanan WhatsApp
-                </h2>
-                <p className="text-[14px] text-[#6B6B6B] leading-[1.6]">
-                  Order cepat tanpa ribet. Tim kami siap melayani pertanyaan seputar
-                  ketersediaan varian, harga grosir, dan pengiriman.
-                </p>
-                <div className="text-[14px] font-bold text-[#005B96] bg-[#B3D1E8]/30 px-3 py-1.5 rounded-lg inline-block">
-                  +{waNumber}
-                </div>
+          {/* Info Cards */}
+          <div className="space-y-4">
+            {/* Alamat */}
+            <div className="bg-white p-4 rounded-[16px] shadow-sm border border-[var(--color-muted)]/10 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#E8F3FB] flex items-center justify-center shrink-0">
+                <MapPin className="w-6 h-6 text-[#005B96]" />
               </div>
-
-              <a
-                href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
-                  "Halo Bon Giri, saya ingin bertanya seputar pemesanan stik keju."
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="wa-btn w-full justify-center text-[14px] py-3"
-              >
-                <MessageSquare className="w-4 h-4 fill-white" />
-                Hubungi via WhatsApp
-              </a>
+              <div>
+                <h3 className="text-[13px] font-bold text-[var(--color-charcoal)] mb-0.5">Alamat Produksi</h3>
+                <p className="text-[12px] text-[var(--color-charcoal-soft)] leading-tight">{address}</p>
+              </div>
             </div>
 
-            {/* Business Info Box */}
-            <div
-              className="bg-white rounded-xl border border-[#E0E0E0] p-7 space-y-5"
-              style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-            >
-              <div className="pb-4 border-b border-[#E0E0E0]">
-                <h2 className="text-[20px] font-semibold text-[#1A1A1A]">
-                  Alamat & Operasional
-                </h2>
+            {/* Jam Operasional */}
+            <div className="bg-white p-4 rounded-[16px] shadow-sm border border-[var(--color-muted)]/10 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#E8F3FB] flex items-center justify-center shrink-0">
+                <Clock className="w-6 h-6 text-[#005B96]" />
               </div>
+              <div>
+                <h3 className="text-[13px] font-bold text-[var(--color-charcoal)] mb-0.5">Jam Operasional</h3>
+                <p className="text-[12px] text-[var(--color-charcoal-soft)] leading-tight">{hours}</p>
+              </div>
+            </div>
 
-              <ul className="space-y-5">
-                <li className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-[#FDB813] shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-[12px] text-[#A6A6A6] font-medium uppercase tracking-[0.04em] block">
-                      Lokasi Produksi
-                    </span>
-                    <span className="text-[14px] text-[#1A1A1A] font-semibold">{address}</span>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-[#FDB813] shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-[12px] text-[#A6A6A6] font-medium uppercase tracking-[0.04em] block">
-                      Jam Layanan
-                    </span>
-                    <span className="text-[14px] text-[#1A1A1A] font-semibold">{hours}</span>
-                  </div>
-                </li>
-
-                <li className="flex items-start gap-3">
-                  <InstagramIcon className="w-5 h-5 text-[#FDB813] shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-[12px] text-[#A6A6A6] font-medium uppercase tracking-[0.04em] block">
-                      Instagram Resmi
-                    </span>
-                    <a
-                      href={`https://instagram.com/${ig}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[14px] text-[#005B96] font-semibold hover:text-[#003D5C] transition-colors"
-                    >
-                      @{ig}
-                    </a>
-                  </div>
-                </li>
-              </ul>
+            {/* Instagram */}
+            <div className="bg-white p-4 rounded-[16px] shadow-sm border border-[var(--color-muted)]/10 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#E8F3FB] flex items-center justify-center shrink-0">
+                <InstagramIcon className="w-6 h-6 text-[#005B96]" />
+              </div>
+              <div>
+                <h3 className="text-[13px] font-bold text-[var(--color-charcoal)] mb-0.5">Instagram</h3>
+                <a
+                  href={`https://instagram.com/${ig}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[12px] text-[var(--color-navy)] font-semibold hover:underline"
+                >
+                  @{ig}
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
+
+      {/* Floating WhatsApp Button */}
+      <div className="fixed bottom-[72px] w-full max-w-[480px] px-4 pb-4 z-40 bg-gradient-to-t from-[#FFF9E6] via-[#FFF9E6]/80 to-transparent pt-8">
+        <a
+          href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
+            "Halo Bon Giri, saya ingin bertanya seputar pemesanan stik keju."
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full bg-[#128C7E] hover:bg-[#075E54] text-white font-bold text-[15px] py-4 rounded-full flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(18,140,126,0.4)] transition-all"
+        >
+          <MessageSquare className="w-5 h-5 fill-white" />
+          Chat WhatsApp
+        </a>
+      </div>
+    </MobileAppShell>
   );
 }

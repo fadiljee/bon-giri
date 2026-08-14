@@ -1,17 +1,18 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import MobileAppShell from "@/components/MobileAppShell";
 import Image from "next/image";
 import { CheckCircle2, MapPin, Fish, UtensilsCrossed, GraduationCap } from "lucide-react";
 
 export default function TentangPage() {
   return (
-    <>
-      <Navbar />
-      <main className="flex-1 bg-white py-12">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <MobileAppShell>
+      {/* Tab Title */}
+      <div className="bg-[#FFF9E6] px-4 py-2 text-center border-b border-[var(--color-muted)]/10">
+        <span className="text-[14px] font-bold text-[var(--color-charcoal)]">Tentang</span>
+      </div>
 
-          {/* Page Header */}
-          <div className="text-center max-w-3xl mx-auto mb-12 gsap-reveal">
+      <div className="flex flex-col bg-[#FFF9E6] min-h-screen pb-24">
+        <div className="px-4 pt-8 pb-4">
+          <div className="text-center max-w-2xl mx-auto mb-8 gsap-reveal">
             <span className="tag-filled text-[11px]">
               Profil Usaha UMKM
             </span>
@@ -24,11 +25,7 @@ export default function TentangPage() {
             </p>
           </div>
 
-          {/* Main card */}
-          <div
-            className="gsap-reveal bg-white rounded-xl border border-[#E0E0E0] p-8 sm:p-10 space-y-10"
-            style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-          >
+          <div className="bg-white rounded-[16px] border border-[var(--color-muted)]/10 p-5 shadow-sm space-y-6">
             {/* Story */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="space-y-4">
@@ -133,8 +130,7 @@ export default function TentangPage() {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
+    </MobileAppShell>
   );
 }

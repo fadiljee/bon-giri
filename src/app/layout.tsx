@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
-import { Montserrat, Playfair_Display } from "next/font/google";
+import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import Providers from "@/components/Providers";
 import SmoothScroll from "@/components/SmoothScroll";
 import GsapAnimations from "@/components/GsapAnimations";
 import "./globals.css";
 
-const montserrat = Montserrat({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-montserrat",
-  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-body",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const playfairDisplay = Playfair_Display({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["400", "500", "600", "700", "800", "900"],
-  style: ["normal", "italic"],
+  variable: "--font-display",
+  weight: ["600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -55,9 +56,9 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${montserrat.variable} ${playfairDisplay.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-neutral-900">
+      <body className="min-h-full flex flex-col bg-[#FFFDD0] text-[#1A1A1A]">
         <Providers>
           <SmoothScroll>
             <GsapAnimations />

@@ -1,10 +1,8 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import MobileAppShell from "@/components/MobileAppShell";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageSquare, Flame, Search, PackageSearch } from "lucide-react";
-
+import { Flame, Search, PackageSearch } from "lucide-react";
 export const revalidate = 60;
 
 interface KatalogProps {
@@ -58,40 +56,40 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="flex-1 bg-white py-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <MobileAppShell>
+      {/* Tab Title */}
+      <div className="bg-[#FFF9E6] px-4 py-2 text-center border-b border-[var(--color-muted)]/10">
+        <span className="text-[14px] font-bold text-[var(--color-charcoal)]">Katalog</span>
+      </div>
 
-          {/* Page Header */}
-          <div className="mb-8 text-center max-w-2xl mx-auto gsap-reveal">
-            <span className="tag-filled text-[11px]">
-              Katalog Produk Usaha
-            </span>
-            <h1 className="text-[32px] sm:text-[38px] font-bold text-[#1A1A1A] mt-3 leading-[1.15]">
-              Daftar Stik Keju Bon Giri
-            </h1>
-            <p className="text-[15px] text-[#6B6B6B] mt-2 leading-[1.6]">
-              Pilih varian favoritmu dan klik tombol pesan untuk langsung terhubung ke WhatsApp
-              penjual dengan pesan otomatis.
-            </p>
-          </div>
+      <div className="flex flex-col bg-[#FFF9E6] min-h-screen pb-20">
+        {/* Search Bar */}
+        <div className="px-4 pt-4 pb-2">
+          <form action="/katalog" method="GET" className="relative w-full">
+            {kategori && <input type="hidden" name="kategori" value={kategori} />}
+            <Search className="w-5 h-5 text-[var(--color-muted)] absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              name="q"
+              defaultValue={q || ""}
+              placeholder="Cari onigiri favoritmu..."
+              className="w-full pl-12 pr-4 py-3 text-[14px] bg-[var(--color-white)] border border-[var(--color-muted)]/20 rounded-[16px] focus:outline-none focus:border-[var(--color-gold)] text-[var(--color-charcoal)] placeholder:text-[var(--color-muted)] shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all"
+            />
+          </form>
+        </div>
 
-          {/* Search & Filter Bar */}
-          <div
-            className="gsap-reveal bg-white p-4 rounded-xl border border-[#E0E0E0] mb-8 flex flex-col md:flex-row items-center justify-between gap-4"
-            style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-          >
-            {/* Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+        {/* Category Pills */}
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar" style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+            <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
               <Link
                 href="/katalog"
-                className={`px-4 py-2 rounded-lg text-[12px] font-semibold whitespace-nowrap transition-all duration-150 uppercase tracking-[0.04em] ${!kategori
-                  ? "bg-[#FDB813] text-[#1A1A1A]"
-                  : "bg-[#E0E0E0] text-[#3D3D3D] hover:bg-[#A6A6A6]/30"
+                className={`px-4 py-1.5 rounded-full text-[13px] font-bold whitespace-nowrap transition-all duration-150 ${!kategori
+                  ? "bg-[var(--color-gold)] text-[var(--color-charcoal)] shadow-sm"
+                  : "bg-[var(--color-white)] border border-[var(--color-muted)]/20 text-[var(--color-charcoal)] shadow-sm"
                   }`}
               >
-                Semua Varian ({products.length})
+                Semua
               </Link>
               {categories.map((cat) => {
                 const isSelected = kategori === cat.slug;
@@ -99,9 +97,9 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
                   <Link
                     key={cat.id}
                     href={`/katalog?kategori=${cat.slug}${q ? `&q=${q}` : ""}`}
-                    className={`px-4 py-2 rounded-lg text-[12px] font-semibold whitespace-nowrap transition-all duration-150 uppercase tracking-[0.04em] ${isSelected
-                      ? "bg-[#FDB813] text-[#1A1A1A]"
-                      : "bg-[#E0E0E0] text-[#3D3D3D] hover:bg-[#A6A6A6]/30"
+                    className={`px-4 py-1.5 rounded-full text-[13px] font-bold whitespace-nowrap transition-all duration-150 ${isSelected
+                      ? "bg-[var(--color-gold)] text-[var(--color-charcoal)] shadow-sm"
+                      : "bg-[var(--color-white)] border border-[var(--color-muted)]/20 text-[var(--color-charcoal)] shadow-sm"
                       }`}
                   >
                     {cat.name}
@@ -109,129 +107,72 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
                 );
               })}
             </div>
-
-            {/* Search Input */}
-            <form action="/katalog" method="GET" className="relative w-full md:w-72">
-              {kategori && <input type="hidden" name="kategori" value={kategori} />}
-              <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                name="q"
-                defaultValue={q || ""}
-                placeholder="Cari varian rasa..."
-                className="w-full pl-9 pr-4 py-2.5 text-[13px] bg-white border border-[#E0E0E0] rounded-lg focus:outline-none focus:border-[#FDB813] focus:ring-2 focus:ring-[#FDB813]/20 text-[#1A1A1A] placeholder:text-[#6B6B6B]"
-              />
-            </form>
           </div>
 
-          {/* Product Grid */}
+        {/* Product Grid */}
+        <div className="px-4 mt-2">
           {products.length === 0 ? (
-            <div
-              className="gsap-reveal text-center py-16 bg-white rounded-xl border border-[#E0E0E0]"
-              style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-            >
-              <div className="flex justify-center mb-3">
-                <div className="w-16 h-16 rounded-full bg-[#FFFDD0] flex items-center justify-center border border-[#FDB813]/40">
-                  <PackageSearch className="w-8 h-8 text-[#005B96]" />
+            <div className="gsap-reveal text-center py-16 bg-[var(--color-white)] rounded-[16px] shadow-sm border border-[var(--color-muted)]/20">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-[#FFF9E6] flex items-center justify-center border border-[var(--color-gold)]/40">
+                  <PackageSearch className="w-8 h-8 text-[var(--color-gold-dark)]" />
                 </div>
               </div>
-              <h3 className="text-[19px] font-semibold text-[#1A1A1A]">
+              <h3 className="font-display text-[20px] font-semibold text-[var(--color-charcoal)]">
                 Varian Tidak Ditemukan
               </h3>
-              <p className="text-[13px] text-[#6B6B6B] mt-1.5">
-                Coba sesuaikan kata kunci pencarian atau pilih kategori produk yang lain.
+              <p className="text-[14px] text-[var(--color-charcoal-soft)] mt-2">
+                Coba sesuaikan kata kunci pencarian.
               </p>
-              <Link href="/katalog" className="btn-primary text-[13px] mt-5 inline-flex">
+              <Link href="/katalog" className="btn-primary mt-6 inline-flex text-[14px] bg-[var(--color-gold)] text-[var(--color-charcoal)]">
                 Lihat Semua Varian
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-3">
               {products.map((product) => {
-                const imgUrl =
-                  product.images[0]?.url || "/images/products/original.png";
-
-                const waMessage = encodeURIComponent(
-                  `Halo Bon Giri, saya ingin memesan produk: *${product.name}* (Harga: Rp ${product.price.toLocaleString("id-ID")})`
-                );
+                const imgUrl = product.images[0]?.url || "/images/products/original.webp";
 
                 return (
-                  <div
-                    key={product.id}
-                    className={`gsap-card flex flex-col bg-white rounded-xl border border-[#E0E0E0] overflow-hidden hover:shadow-lg transition-all duration-200 group ${!product.isAvailable ? "opacity-70" : ""
-                      }`}
-                    style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.06)" }}
-                  >
-                    <div className="relative aspect-[3/2] overflow-hidden bg-[#FFFEF3]">
+                  <div key={product.id} className="gsap-card card flex flex-col p-0 overflow-hidden group border-0 shadow-sm rounded-[16px]">
+                    <div className="relative aspect-square bg-[#FFFEF3] w-full">
                       <Link href={`/katalog/${product.slug}`} className="block w-full h-full relative">
-                        <Image
-                          src={imgUrl}
-                          alt={product.name}
-                          fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          loading="lazy"
-                        />
+                        <Image src={imgUrl} alt={product.name} fill sizes="(max-width: 480px) 50vw, 240px" className="object-cover" loading="lazy" />
+                        
+                        {/* Sold Out Overlay */}
+                        {!product.isAvailable && (
+                          <div className="absolute inset-0 bg-[var(--color-charcoal)]/60 flex items-center justify-center backdrop-blur-[2px]">
+                            <span className="text-white font-display font-bold text-[16px] tracking-wider">SOLD OUT</span>
+                          </div>
+                        )}
                       </Link>
 
-                      <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold text-[#1A1A1A] shadow-sm">
-                        {product.category.name}
-                      </div>
-
-                      {!product.isAvailable ? (
-                        <div className="absolute inset-0 bg-[#1A1A1A]/50 backdrop-blur-[2px] flex items-center justify-center">
-                          <span className="tag-danger">Stok Habis</span>
+                      {product.isAvailable && (
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FDE29F] text-[#B08A20]">
+                          Ready Stock
                         </div>
-                      ) : (
-                        product.spiceLevel && (
-                          <div className="absolute top-3 right-3 tag-filled text-[10px] gap-1">
-                            <Flame className="w-3 h-3" />
-                            {product.spiceLevel}
-                          </div>
-                        )
+                      )}
+
+                      {product.spiceLevel && product.isAvailable && (
+                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-error)] text-white shadow-sm flex items-center gap-1">
+                          <Flame className="w-2.5 h-2.5" /> {product.spiceLevel}
+                        </div>
                       )}
                     </div>
 
-                    <div className="p-5 flex flex-col flex-1">
-                      <Link
-                        href={`/katalog/${product.slug}`}
-                        className="font-semibold text-[16px] text-[#1A1A1A] leading-snug line-clamp-2 hover:text-[#005B96] transition-colors"
-                      >
+                    <div className="p-3 flex flex-col flex-1 bg-[var(--color-white)] relative">
+                      <Link href={`/katalog/${product.slug}`} className="font-bold text-[13px] text-[var(--color-charcoal)] line-clamp-2 leading-snug mb-1">
                         {product.name}
                       </Link>
-                      <p className="text-[13px] text-[#6B6B6B] mt-1.5 line-clamp-2 flex-1 leading-[1.6]">
-                        {product.description}
-                      </p>
-
-                      <div className="mt-4 pt-3 border-t border-[#E0E0E0] flex items-center justify-between gap-2">
-                        <div>
-                          <span className="text-[12px] text-[#A6A6A6] font-medium uppercase tracking-[0.04em] block leading-none">
-                            Harga Kemasan
-                          </span>
-                          <span className="text-[16px] font-bold text-[#FDB813] leading-tight">
-                            Rp {product.price.toLocaleString("id-ID")}
-                          </span>
-                        </div>
-
-                        {product.isAvailable ? (
-                          <a
-                            href={`https://wa.me/${waNumber}?text=${waMessage}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="wa-btn py-2 px-3 text-[12px] font-bold"
-                          >
-                            <MessageSquare className="w-3.5 h-3.5 fill-white" />
-                            Pesan
-                          </a>
-                        ) : (
-                          <button
-                            disabled
-                            className="bg-[#E0E0E0] text-[#A6A6A6] text-[12px] font-bold py-2 px-3 rounded-full cursor-not-allowed"
-                          >
-                            Habis
-                          </button>
-                        )}
-                      </div>
+                      
+                      <span className="tabular-price text-[15px] font-bold text-[var(--color-gold-dark)] mt-auto">
+                        Rp{product.price.toLocaleString("id-ID")}
+                      </span>
+                      
+                      {/* Plus Button */}
+                      <Link href={`/katalog/${product.slug}`} className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-[var(--color-muted)]/10 flex items-center justify-center text-[var(--color-charcoal)] hover:bg-[var(--color-gold)] transition-colors">
+                        <span className="text-[18px] font-medium leading-none mb-0.5">+</span>
+                      </Link>
                     </div>
                   </div>
                 );
@@ -239,8 +180,7 @@ export default async function KatalogPage({ searchParams }: KatalogProps) {
             </div>
           )}
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
+    </MobileAppShell>
   );
 }

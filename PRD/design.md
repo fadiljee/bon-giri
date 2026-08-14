@@ -1,223 +1,185 @@
-# Design System — Bon Giri Stik Keju
-**Tema: "Artisanal Crunch"**
+# Design System — Website Bon Giri Stik Keju
 
-Versi: 1.0 · 9 Agustus 2026
-Dipakai untuk: website katalog publik + panel admin (Next.js)
+**Versi:** 1.0
+**Tanggal:** 14 Agustus 2026
+**Cakupan:** Portal Publik (Katalog) — Mobile-First
+**Terkait:** `prd.md` v2.1
 
 ---
 
 ## 1. Prinsip Desain
 
-- **Hangat & buatan tangan** — warna kuning-madu dan krem mencerminkan proses gorengan rumahan, bukan pabrikan.
-- **Terpercaya** — biru tua sebagai warna sekunder memberi kesan kredibel/profesional, menyeimbangkan kesan "jajanan" agar tetap layak untuk toko resmi.
-- **Jelas untuk semua umur** — kontras tinggi, tipografi besar dan tegas, karena target pembeli lintas generasi.
+1. **Mobile-first, bukan mobile-responsive.** Semua keputusan desain dimulai dari layar 375–414px, baru di-scale ke tablet/desktop. Mayoritas pengunjung datang dari klik link Instagram/WhatsApp langsung di HP.
+2. **Foto adalah hero.** Produk makanan dijual lewat visual, bukan teks. Beri ruang sebesar mungkin untuk foto di setiap card.
+3. **Satu CTA yang jelas per layar.** Jangan bersaing dengan banyak tombol berwarna — hanya satu aksen warna untuk aksi utama (pesan/checkout).
+4. **Thumb-friendly.** Semua interaksi penting bisa dijangkau ibu jari saat HP dipegang satu tangan (zona bawah layar).
+5. **Terasa cepat, walau koneksi lambat.** Skeleton loading, lazy load gambar, dan animasi ringan — bukan spinner kosong yang bikin cemas.
 
 ---
 
-## 2. Palet Warna
-
-### 2.1 Warna Inti
-
-| Token | Hex | Peran |
-|---|---|---|
-| `--color-primary` | `#FDB813` | Aksi utama, CTA, highlight harga |
-| `--color-secondary` | `#005B96` | Elemen pendukung, link, aksen kepercayaan |
-| `--color-tertiary` | `#FFFDD0` | Latar lembut, area highlight ringan |
-| `--color-neutral-900` | `#1A1A1A` | Teks utama, latar gelap (footer/nav) |
-
-### 2.2 Skala Warna (Tint & Shade)
-
-Gunakan skala ini untuk state (hover, disabled, background) dan hierarki visual — jangan buat warna baru di luar skala ini.
-
-**Primary (Gold)**
-```
---primary-900: #4A3200   (paling gelap — teks di atas primary jika perlu)
---primary-700: #8C6300
---primary-500: #FDB813   (base)
---primary-300: #FDD273
---primary-100: #FEEBB8
-```
-
-**Secondary (Blue)**
-```
---secondary-900: #001F33
---secondary-700: #003D5C
---secondary-500: #005B96   (base)
---secondary-300: #4D8FBF
---secondary-100: #B3D1E8
-```
-
-**Tertiary (Cream)**
-```
---tertiary-900: #7A7550   (olive gelap, untuk teks di atas cream)
---tertiary-700: #B0AA78
---tertiary-500: #FFFDD0   (base)
---tertiary-300: #FFFEE3
---tertiary-100: #FFFEF3
-```
-
-**Neutral (Grayscale)**
-```
---neutral-900: #1A1A1A   (base — teks utama)
---neutral-700: #3D3D3D
---neutral-500: #6B6B6B
---neutral-300: #A6A6A6
---neutral-100: #E0E0E0
---neutral-0:   #FFFFFF
-```
-
-### 2.3 Warna Fungsional (Status)
-
-Dipetakan dari swatch tombol ikon aksi (kuning/biru/olive/merah):
+## 2. Palet Warna (Portal Publik — "Artisanal Crunch")
 
 | Token | Hex | Penggunaan |
 |---|---|---|
-| `--status-info` | `#005B96` (secondary-500) | Info netral |
-| `--status-success` | `#4A6B1F` (olive) | Berhasil disimpan, stok tersedia |
-| `--status-warning` | `#FDB813` (primary-500) | Stok menipis |
-| `--status-danger` | `#C81E1E` | Hapus, stok habis, error |
+| `--color-cream` | `#FFFDD0` | Background utama halaman |
+| `--color-cream-soft` | `#FFF9E6` | Background section alternatif / card skeleton |
+| `--color-gold` | `#FDB813` | Aksen CTA utama, badge harga, highlight — **pakai selektif** |
+| `--color-gold-dark` | `#E0A20A` | Hover/active state tombol emas |
+| `--color-navy` | `#005B96` | Aksen sekunder (link, ikon info, badge kategori) |
+| `--color-charcoal` | `#1A1A1A` | Teks utama, judul |
+| `--color-charcoal-soft` | `#4A4A4A` | Teks sekunder/deskripsi |
+| `--color-white` | `#FFFFFF` | Card foreground, permukaan elevated |
+| `--color-success` | `#2E9B4F` | Badge "Ready Stock" |
+| `--color-muted` | `#9C9C9C` | Badge "Stok Habis", teks disabled |
+| `--color-error` | `#D64545` | Validasi error (form kontak, dsb) |
 
-### 2.4 Aturan Kontras
-- Teks di atas `primary-500`: gunakan `neutral-900`, **bukan** putih (kontras putih di atas kuning gagal WCAG AA).
-- Teks di atas `secondary-500`/`neutral-900`: gunakan `neutral-0` (putih).
-- Teks body minimal rasio kontras 4.5:1 — cek tiap kombinasi baru dengan tool contrast checker sebelum dipakai.
+**Aturan pemakaian warna:**
+- Warna emas (`--color-gold`) **maksimal muncul di 1–2 elemen per layar** — biasanya CTA utama + 1 badge. Jika semua elemen emas, tidak ada yang menonjol.
+- Background krem tidak pernah polos kosong — selalu ada tekstur lembut lewat card putih dengan shadow tipis di atasnya, supaya ada kedalaman (depth).
 
 ---
 
 ## 3. Tipografi
 
-**Font tunggal: Montserrat** (headline, body, label) — dibedakan lewat *weight* dan *size*, bukan ganti-ganti font.
-
-| Peran | Ukuran | Weight | Contoh Penggunaan |
+| Peran | Font | Contoh Ukuran (Mobile) | Berat |
 |---|---|---|---|
-| Display / Hero | 48–56px | 700 (Bold) | Judul hero halaman beranda |
-| Headline | 28–34px | 700 (Bold) | Judul section ("Katalog Rasa") |
-| Subheading | 18–20px | 600 (SemiBold) | Nama produk di kartu |
-| Body | 15–16px | 400 (Regular) | Deskripsi, paragraf |
-| Label / Caption | 12–13px | 500 (Medium), uppercase, letter-spacing 0.04em | Tag kategori, harga satuan, form label |
+| Display / Judul Hero | **Fraunces** (serif hangat, sedikit playful) | 28–32px | 600 |
+| Heading Section | **Plus Jakarta Sans** | 20–22px | 700 |
+| Body / Deskripsi | **Plus Jakarta Sans** | 14–15px | 400–500 |
+| Harga / Angka | **Plus Jakarta Sans** (tabular numbers) | 16–18px | 700 |
+| Caption / Label kecil | **Plus Jakarta Sans** | 11–12px | 500, uppercase, letter-spacing 0.03em |
 
-```css
---font-family: 'Montserrat', sans-serif;
---fs-display: 52px;
---fs-headline: 32px;
---fs-subheading: 19px;
---fs-body: 16px;
---fs-label: 12px;
---lh-body: 1.6;
---lh-heading: 1.15;
-```
+- Line-height body: 1.5–1.6 untuk keterbacaan di layar kecil.
+- Hindari lebih dari 2 keluarga font. Fraunces hanya untuk judul besar yang jumlahnya sedikit (hero, nama halaman) — jangan dipakai di body.
+- Angka harga selalu tabular/monospace-style agar rapi saat berjajar (mis. daftar harga varian).
 
 ---
 
-## 4. Komponen
+## 4. Grid, Spacing & Radius
 
-### 4.1 Tombol (Button)
-
-Empat varian, konsisten di seluruh situs — dari halaman katalog sampai panel admin.
-
-| Varian | Latar | Teks | Border | Penggunaan |
-|---|---|---|---|---|
-| **Primary** | `primary-500` | `neutral-900` | none | Aksi utama: "Pesan via WhatsApp", "Simpan Produk" |
-| **Secondary** | transparan | `neutral-900` atau `secondary-500` | none | Aksi kedua yang tidak menonjol: "Batal", link teks |
-| **Inverted** | `neutral-900` | `neutral-0` | none | Di atas latar terang, untuk kontras kuat (nav gelap, footer CTA) |
-| **Outlined** | transparan | `neutral-900` | 1.5px `neutral-300` | Aksi netral: "Lihat Detail", filter |
-
-```css
-.btn-primary   { background: var(--primary-500); color: var(--neutral-900); border-radius: 8px; font-weight: 600; }
-.btn-secondary { background: transparent; color: var(--neutral-900); font-weight: 600; }
-.btn-inverted  { background: var(--neutral-900); color: var(--neutral-0); border-radius: 8px; font-weight: 600; }
-.btn-outlined  { background: transparent; border: 1.5px solid var(--neutral-300); color: var(--neutral-900); border-radius: 8px; }
-```
-
-Radius standar: **8px** untuk tombol & input, **12px** untuk card, **100px** (pill) khusus tombol WhatsApp agar terasa "actionable" dan berbeda dari tombol lain.
-
-### 4.2 Search Input
-
-- Latar `neutral-0`, border `neutral-100`, ikon kaca pembesar di kiri (warna `neutral-500`)
-- Radius 8px, padding vertikal 10px
-- Placeholder pakai `neutral-500`, teks input `neutral-900`
-
-### 4.3 Navigasi Ikon (Icon Nav)
-
-Kelompok ikon bulat (home, search, akun) seperti pada referensi:
-- Bentuk lingkaran, diameter 40px
-- Default: latar `neutral-100`, ikon `neutral-700`
-- Aktif/selected: latar `primary-500`, ikon `neutral-900`
-
-### 4.4 Label / Tag
-
-- Bentuk pill, padding `4px 10px`, font label (12px, medium, uppercase)
-- Varian "filled": latar `primary-500`, teks `neutral-900` — dipakai untuk tag rasa/kategori di kartu produk
-- Varian "outline": border `neutral-300`, teks `neutral-700` — dipakai untuk tag netral (mis. berat produk)
-
-### 4.5 Icon Action Buttons (Status Berwarna)
-
-Tombol ikon bulat kecil (32px) untuk aksi cepat di panel admin — warna menandakan jenis aksi:
-
-| Warna | Aksi |
-|---|---|
-| Gold (`primary-500`) | Edit |
-| Biru (`secondary-500`) | Lihat detail / info |
-| Olive (`status-success`) | Tandai tersedia/aktif |
-| Merah (`status-danger`) | Hapus / nonaktifkan |
-
-### 4.6 Card (Kartu Produk / Panel)
-
-- Latar `neutral-0`, radius 12px, shadow lembut (`0 2px 8px rgba(26,26,26,0.06)`)
-- Padding internal 20–24px
-- Header opsional dengan latar `tertiary-500` untuk kartu highlight/promo
+| Token | Nilai | Catatan |
+|---|---|---|
+| Container padding (mobile) | 16px | Margin kiri-kanan konsisten di semua section |
+| Grid produk | 2 kolom, gap 12px | Bukan 1 kolom — biar cepat di-scan |
+| Card radius | 16–20px | Kesan lembut, "artisanal", bukan tajam/korporat |
+| Card shadow | `0 2px 8px rgba(26,26,26,0.06)` | Halus, jangan terlalu gelap |
+| Spacing scale | 4 / 8 / 12 / 16 / 24 / 32 / 48px | Skala konsisten, hindari nilai acak |
+| Tap target minimum | 44×44px | Semua tombol, chip, ikon interaktif |
+| Bottom safe area | +16–24px padding bawah | Untuk sticky bar di atas gesture bar iOS/Android |
 
 ---
 
-## 5. Spacing System
+## 5. Struktur Halaman Utama (Mobile)
 
-Skala 4px sebagai basis, dipakai konsisten untuk padding, margin, dan gap:
+### 5.1 Beranda (`/`)
+1. **Hero Section** — foto produk unggulan full-bleed, judul singkat (Fraunces), 1 CTA emas "Lihat Katalog".
+2. **Value Props strip** — 3 ikon horizontal scroll: Kalsium Ikan Tenggiri, Bebas Pengawet, Halal.
+3. **Grid Produk Unggulan** — 2 kolom, maksimal 4–6 produk, tombol "Lihat Semua" di bawah.
+4. **Cerita Produk / Testimoni** — card carousel swipe horizontal, bukan grid statis.
+5. **Sticky bottom bar** — tombol "Pesan Sekarang" muncul setelah user scroll melewati hero.
+
+### 5.2 Katalog (`/katalog`)
+1. **Search bar** sticky di atas, di bawah header — full width, ikon kaca pembesar.
+2. **Category chips** — horizontal scroll, chip aktif berwarna navy/gold, sisanya outline.
+3. **Grid Produk 2 kolom** — foto rasio 1:1, badge stok di pojok kiri-atas foto, harga tabular di bawah nama.
+4. **Empty state** (hasil search kosong) — ilustrasi ringan + CTA "Reset Filter", bukan teks kosong doang.
+
+### 5.3 Detail Produk (`/katalog/[slug]`)
+1. Foto besar di atas (rasio 4:5 atau 1:1), swipeable jika ada >1 foto.
+2. Nama, kategori, level pedas (badge navy), harga besar (tabular, bold).
+3. Deskripsi singkat, expand/collapse jika panjang (`Baca selengkapnya`).
+4. **Sticky bottom bar**: tombol "Pesan via WhatsApp" full-width, warna emas.
+
+### 5.4 Modal/Bottom Sheet Checkout QRIS (`Fitur Baru`)
+Gunakan **bottom sheet** (naik dari bawah), bukan modal tengah — pola yang familiar dari Shopee/GoFood:
 
 ```
---space-1: 4px
---space-2: 8px
---space-3: 12px
---space-4: 16px
---space-5: 24px
---space-6: 32px
---space-7: 48px
---space-8: 64px
+┌─────────────────────────┐
+│  ▬▬  (drag handle)       │
+│  Ringkasan Pesanan       │
+│  Nama Produk × Qty       │
+│  Total: Rp XX.XXX        │
+│  ──────────────────────  │
+│  [ Gambar QRIS ]         │
+│  (tap untuk perbesar)    │
+│  ──────────────────────  │
+│  1. Scan & bayar sesuai  │
+│     nominal               │
+│  2. Kirim bukti via WA   │
+│  ──────────────────────  │
+│  [ Sudah Bayar → WA ]    │ ← CTA emas, full-width
+└─────────────────────────┘
 ```
 
----
+- Drag handle di atas agar terasa dismissable (swipe down untuk tutup).
+- Gambar QRIS bisa di-tap untuk full-screen zoom (penting — banyak HP kesulitan scan dari gambar kecil di layar).
+- CTA satu-satunya warna emas di layar itu, tidak ada tombol kompetitor lain.
 
-## 6. Ikonografi
-
-- Gaya **line icon**, stroke width 1.5–2px, sudut membulat (rounded linecap/linejoin) — selaras dengan radius 8–12px pada komponen lain.
-- Warna default ikon: `neutral-700`; ikon di dalam tombol mengikuti warna teks tombol.
-
----
-
-## 7. Penerapan ke Halaman Bon Giri
-
-| Elemen | Token yang dipakai |
-|---|---|
-| Latar utama halaman | `neutral-0` (bukan lagi navy gelap seperti draf sebelumnya) |
-| Navbar & footer | `neutral-900` latar, teks `neutral-0`, logo/aksen `primary-500` |
-| Hero section | Latar `tertiary-500` atau `neutral-0`, headline `neutral-900`, aksen highlight `primary-500` |
-| Kartu produk (katalog) | Latar `neutral-0`, border tipis `neutral-100`, tag rasa pakai Label filled (`primary-500`) |
-| Tombol "Pesan via WhatsApp" | `btn-primary`, radius pill 100px, agar berbeda dari tombol lain dan terasa jadi aksi utama |
-| Badge "Stok Habis" | Label filled dengan `status-danger` |
-| Panel admin — tabel produk | Icon action buttons (§4.5) di kolom aksi tiap baris |
-| Panel admin — form tambah produk | Input & search style §4.2, tombol simpan `btn-primary`, batal `btn-secondary` |
+### 5.5 Kontak (`/kontak`)
+- Card alamat, jam operasional, Instagram — layout stack vertikal, ikon navy di kiri tiap item.
+- Tombol WhatsApp besar di bagian bawah, bukan link teks kecil.
 
 ---
 
-## 8. Yang Berubah dari Draf Desain Sebelumnya
+## 6. Komponen Kunci
 
-Draf mockup awal (nota/tiket berwarna navy-gold-coral) digantikan sistem ini agar konsisten dengan brand kit "Artisanal Crunch" yang sudah ditentukan. Perbedaan utama:
-- Latar dasar berubah dari **navy gelap** → **terang (neutral-0/tertiary)**, kesan jadi lebih bersih dan approachable.
-- Font accent (Fraunces serif + JetBrains Mono) digantikan **satu keluarga font: Montserrat** di semua peran teks.
-- Warna CTA berubah dari **coral** → **gold (primary-500)**, selaras dengan warna dominan brand kit.
+### 6.1 Product Card
+- Foto rasio 1:1, object-fit cover, radius atas mengikuti card.
+- Badge stok: pill kecil kiri-atas foto (`Ready` hijau / `Habis` abu, teks putih).
+- Nama produk 1 baris (truncate + ellipsis jika panjang).
+- Harga tabular, bold, warna charcoal.
+- Jika stok habis: foto sedikit di-dim (opacity 60%), tombol pesan disabled dengan warna muted.
+
+### 6.2 Sticky Bottom Bar
+- Background putih, shadow ke atas `0 -2px 8px rgba(0,0,0,0.06)`.
+- Selalu fixed di bawah viewport, padding memperhitungkan safe-area-inset-bottom.
+- Isi: 1 CTA utama (full-width atau CTA + info harga di sebelah kiri jika di halaman detail).
+
+### 6.3 Category Chip
+- Height 36px, radius full (pill), padding horizontal 16px.
+- State aktif: background navy, teks putih. State non-aktif: outline `#1A1A1A` 1px, teks charcoal.
+
+### 6.4 Badge Stok
+- `Ready`: background `--color-success` transparan 15%, teks `--color-success` solid.
+- `Habis`: background `--color-muted` transparan 15%, teks `--color-muted` solid.
+
+### 6.5 Skeleton Loading
+- Warna `--color-cream-soft` dengan shimmer animasi halus (bukan spinner).
+- Bentuk skeleton mengikuti bentuk asli card (foto persegi + 2 baris teks pendek).
 
 ---
 
-## 9. Referensi File Terkait
+## 7. Interaksi & Micro-animation
 
-- Token warna & tipografi di atas dapat langsung dipetakan ke `tailwind.config.js` (`theme.extend.colors`, `theme.extend.fontFamily`) saat implementasi Next.js.
-- Rekomendasi: simpan token sebagai CSS variables di `globals.css` agar bisa dipakai baik di komponen Tailwind maupun custom CSS.
+- Transisi antar state: 150–200ms ease-out — cukup cepat agar tidak terasa lag di HP low-end.
+- Tap pada card produk: scale 0.98 sesaat (feedback sentuh), bukan hover effect (hover tidak relevan di touchscreen).
+- Bottom sheet checkout: slide-up 250ms, backdrop fade 200ms.
+- Toast konfirmasi (misal "Berhasil disalin") muncul dari bawah, auto-dismiss 2.5 detik, tidak menghalangi sticky bar.
+
+---
+
+## 8. Aksesibilitas & Performa Mobile
+
+- Kontras teks minimal WCAG AA (charcoal di atas krem sudah memenuhi; hindari teks abu muda di atas krem).
+- Semua gambar wajib `alt` text deskriptif (nama produk).
+- Lazy load semua gambar di bawah fold menggunakan `loading="lazy"` / Next.js `<Image>`.
+- Font di-load dengan `font-display: swap` agar teks tetap terbaca saat font custom belum termuat.
+- Hindari elemen hover-only — semua interaksi (quick view, tooltip info) harus bisa dipicu lewat tap.
+- Target Lighthouse Mobile Performance ≥ 90.
+
+---
+
+## 9. Yang Sebaiknya Dihindari
+
+- ❌ Modal checkout di tengah layar (susah dijangkau ibu jari, harus scroll dalam modal kecil).
+- ❌ Dropdown filter kategori tersembunyi — gunakan chip yang langsung terlihat.
+- ❌ Warna emas dipakai berulang di banyak elemen sekaligus (badge, tombol, teks, border) — jadi ramai dan tidak ada fokus.
+- ❌ Font serif dekoratif untuk body text — sulit dibaca di layar kecil.
+- ❌ Spinner loading polos tanpa skeleton — terasa lebih lambat dari yang sebenarnya.
+- ❌ Tombol WhatsApp/QRIS diletakkan hanya di bagian atas halaman — pengguna sering tidak scroll ke atas lagi setelah membaca detail.
+
+---
+
+## 10. Referensi Implementasi
+
+Palet warna & radius di atas dapat langsung dipetakan ke Tailwind CSS v4 melalui `@theme` di `globals.css` (lihat `prd.md` bagian 4 — Tech Stack). Font Fraunces & Plus Jakarta Sans dapat dimuat lewat `next/font/google` untuk optimasi loading otomatis di Next.js.eks

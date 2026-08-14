@@ -1,185 +1,212 @@
-# PRD — Website Katalog Bon Giri Stik Keju
+# PRD — Website Katalog & Admin Panel Bon Giri Stik Keju
 
-**Versi:** 1.0
-**Tanggal:** 9 Agustus 2026
-**Pemilik Produk:** Tim Bon Giri (KLK Kewirausahaan UBB)
-**Status:** Draft untuk review
+**Versi:** 2.1 (Update: Integrasi QRIS pada Alur Checkout)  
+**Tanggal:** 14 Agustus 2026  
+**Pemilik Produk:** Tim Bon Giri (KLK Kewirausahaan UBB)  
+**Status:** Terimplementasi & Aktif — Dalam Pengembangan Fitur QRIS  
+
+---
+
+## 0. Changelog
+
+| Versi | Tanggal | Perubahan |
+|---|---|---|
+| 2.0 | 10 Agustus 2026 | Rilis awal — Katalog Publik & Admin Panel Next.js. |
+| 2.1 | 14 Agustus 2026 | Menambahkan **Integrasi QRIS** pada alur pemesanan (tampilan QRIS statis DANA Bisnis di web + penyesuaian format pesan WhatsApp otomatis agar menyertakan konfirmasi pembayaran). Tidak ada payment gateway otomatis — pembayaran tetap divalidasi manual oleh Admin/Staff melalui aplikasi mobile. |
 
 ---
 
 ## 1. Latar Belakang & Tujuan
 
-Bon Giri adalah UMKM produk stik keju berbahan dasar tulang ikan tenggiri, berbasis di Bangka Belitung. Saat ini penjualan berjalan lewat Instagram (@stikkeju.bongiri_) dan order manual via WhatsApp. Website ini dibangun untuk:
+Bon Giri adalah UMKM kuliner khas Bangka Belitung yang memproduksi stik keju gurih renyah berbahan dasar kalsium dari tepung tulang ikan tenggiri. Sebelumnya, pemasaran dan penjualan hanya mengandalkan akun Instagram (`@stikkeju.bongiri_`) serta transaksi manual via WhatsApp. 
 
-1. Memberi katalog produk yang rapi dan mudah diakses tanpa bergantung pada algoritma media sosial.
-2. Mempercepat proses order — pengunjung memilih produk, langsung terhubung ke WhatsApp dengan pesan yang sudah terisi otomatis.
-3. Memberi tim internal panel admin untuk mengelola produk (tambah/edit/hapus, update stok) tanpa bantuan developer.
+Website ini dibangun untuk:
+1. Menyediakan **katalog produk digital** yang rapi, cepat, dan independen tanpa ketergantungan pada algoritma media sosial.
+2. Mempercepat dan mengotomatisasi **alur pemesanan via WhatsApp** dengan pesan awal terformat otomatis berisi nama produk, jumlah, dan total harga.
+3. Memberikan **Panel Admin Internal** yang modern, aman, dan mudah digunakan oleh tim usaha untuk mengelola katalog, stok, pengguna staff, dan pengaturan bisnis secara mandiri.
 
 ### 1.1 Tujuan Bisnis
-- Meningkatkan konversi dari "lihat produk" ke "chat order" dibanding proses manual saat ini.
-- Membangun citra profesional untuk mendukung ekspansi pasar di luar Bangka Belitung.
+- Meningkatkan rasio konversi pengunjung dari hanya "melihat katalog" menjadi "kirim chat order WhatsApp".
+- Memperkuat branding profesional Bon Giri sebagai oleh-oleh khas Bangka Belitung berkualitas tinggi.
+- Memudahkan pengelolaan operasional harian (restok, penambahan varian rasa baru) tanpa memerlukan bantuan pengembang (developer-free content management).
 
 ### 1.2 Tujuan Produk
-- Katalog produk publik yang cepat, mobile-first.
-- Panel admin internal untuk tim mengelola konten sendiri.
-- Alur order tanpa checkout (WhatsApp-based), dengan opsi upgrade ke checkout penuh di masa depan (out of scope v1).
+- **Portal Publik**: Fast-loading, SEO-optimized, mobile-first e-commerce catalog.
+- **Panel Admin**: Full-featured dark mode dashboard berbasis shadcn/ui & Radix UI primitives.
+- **WhatsApp Direct Order Engine**: Konversi klik produk langsung menjadi pesan siap kirim di aplikasi WhatsApp customer.
 
 ---
 
-## 2. Target Pengguna
+## 2. Target Pengguna & Role
 
-| Persona | Deskripsi | Kebutuhan Utama |
+| Persona | Role System | Deskripsi & Hak Akses |
 |---|---|---|
-| Pembeli | Pengguna Instagram/Google yang mencari camilan lokal | Lihat varian rasa, harga, lalu order cepat via WA |
-| Admin/Owner | Pemilik usaha | Kontrol penuh: produk, harga, user staff, lihat statistik dasar |
-| Staff | Karyawan yang input data produk sehari-hari | Tambah/edit produk & stok, tanpa akses pengaturan sensitif |
+| **Pembeli / Pengunjung** | *Public User* | Mengakses katalog rasa, mencari/memfilter produk, melihat detail varian, dan melakukan pemesanan via WhatsApp. |
+| **Admin Utama** | `ADMIN` | Pemilik usaha/Manajer. Akses penuh ke seluruh fitur: CRUD Produk, Hapus Produk Permanen, Pengaturan Nomor WA & Bisnis, serta Manajemen Pengguna Staff. |
+| **Staff Pengelola** | `STAFF` | Karyawan operasional. Dapat menambah/mengedit data produk & mengubah status stok. **Dilarang** menghapus produk permanen dan tidak dapat mengakses manajemen user staff. |
 
 ---
 
-## 3. Lingkup (Scope)
+## 3. Lingkup Sistem (Scope & Features)
 
-### 3.1 Termasuk (In Scope — v1)
-- Halaman publik: Beranda, Katalog, Detail Produk, Tentang, Kontak
-- Order via tombol "Pesan" → deep link WhatsApp (`wa.me`) dengan pesan otomatis
-- Panel admin (login) untuk kelola produk, kategori, dan status stok
-- Manajemen user dengan 2 role: **Admin** dan **Staff**
-- Upload & kelola gambar produk
-- Responsive penuh (mobile-first, karena mayoritas pengunjung dari HP)
-- SEO dasar (meta tag, sitemap, open graph untuk share ke sosial media)
+### 3.1 Portal Publik (Public Front-End)
+- **Beranda (Home Page)**:
+  - Hero Section dengan CTA pemesanan dan highlight nilai tambah produk (Kalsium Ikan Tenggiri, Bebas Pengawet, Halal).
+  - Grid Produk Unggulan (Featured Items).
+  - Banner Cerita Produk & Testimoni Pelanggan.
+- **Katalog Rasa (`/katalog`)**:
+  - Filter interaktif berdasarkan Kategori (Original, Pedas Sedang, Extra Pedas, Combo Paket).
+  - Search bar pencarian nama varian secara *real-time*.
+  - Indikator ketersediaan stok (*Ready Stock* vs *Stok Habis*).
+  - Quick View Modal & Halaman Detail Produk (`/katalog/[slug]`).
+  - Tombol **"Pesan via WhatsApp"** yang memicu URL `wa.me` dengan teks pesan dinamis.
+- **Alur Checkout QRIS (`Fitur Baru`)**:
+  - Saat pembeli mengklik tombol **"Pesan"**, sistem menampilkan **Modal/Section Pembayaran QRIS** sebelum diarahkan ke WhatsApp.
+  - Modal menampilkan **gambar QRIS statis DANA Bisnis** milik Bon Giri, ringkasan pesanan (nama produk, qty, total harga), dan instruksi langkah pembayaran.
+  - Instruksi ditampilkan secara jelas: *"Setelah scan QRIS dan transfer, kirim bukti transfer & detail pesanan Anda melalui tombol WhatsApp di bawah."*
+  - Tombol **"Sudah Bayar, Kirim ke WhatsApp"** meneruskan pembeli ke `wa.me` dengan teks pesan otomatis yang sudah menyertakan konfirmasi pembayaran (lihat format pada F3 di bagian 6.1).
+  - Tidak ada proses payment gateway otomatis (tanpa API pembayaran pihak ketiga) — validasi pembayaran QRIS dilakukan **manual oleh Admin/Staff** melalui aplikasi DANA Bisnis dan dicatat di Aplikasi Mobile (lihat `prd-aplikasi.md`, Modul 3).
+  - Gambar QRIS disimpan sebagai aset statis (folder `public/`) atau di **Supabase Storage** (bucket `business-assets`) agar dapat diperbarui oleh Admin melalui Modul Pengaturan Bisnis di aplikasi mobile tanpa perlu deploy ulang web.
+- **Tentang Kami (`/tentang`)**:
+  - Profil usaha Bon Giri, latar belakang pemanfaatan kalsium tulang ikan tenggiri, dan standar kualitas.
+- **Kontak & Lokasi (`/kontak`)**:
+  - Informasi alamat produksi, jam operasional, link Instagram resmi, dan tombol WhatsApp langsung.
 
-### 3.2 Tidak Termasuk (Out of Scope — v1)
-- Checkout & pembayaran online (masih via WA manual)
-- Sistem pengiriman otomatis / ongkir kalkulasi
-- Program loyalitas/membership pembeli
-- Multi-bahasa
-- Aplikasi mobile native
-
-*(Checkout online bisa jadi v2 jika volume order sudah signifikan.)*
+### 3.2 Panel Admin Internal (`/admin`)
+- **Sistem Autentikasi (`/admin/login`)**:
+  - Form login terproteksi NextAuth.js berbasis Credentials (Email & Password di-hash menggunakan `bcryptjs`).
+  - Desain Dark Mode konsisten dengan visual dashboard.
+- **Dashboard Overview (`/admin/dashboard`)**:
+  - **Stat Cards**: Total Produk, Stok Ready, Stok Habis, dan Jumlah Kategori dengan font monospace & badge persentase/indikator tren (`↗ %`, `↘ %`).
+  - **Distribusi Stok Area Chart**: Grafik area bertumpuk (SVG multi-layer) untuk pemantauan proporsi stok.
+  - **Tabel Aktivitas Terkini**: Ringkasan 5–8 produk yang terakhir ditambahkan atau diperbarui.
+- **Manajemen Produk (`/admin/produk`)**:
+  - Tabel produk komprehensif dengan pencarian, filter, dan tombol aksi (Lihat di Katalog, Edit, Hapus).
+  - Form Tambah/Edit Produk (`/admin/produk/tambah` & `/admin/produk/edit/[id]`): Input nama, kategori (`Select`), level pedas (`Select`), harga, status stok (`Switch`), URL foto produk, dan deskripsi (`Textarea`).
+  - Modal Konfirmasi Hapus (`Dialog` Radix UI) terproteksi hak akses role `ADMIN`.
+- **Pengaturan Usaha (`/admin/pengaturan`)**:
+  - Pengubahan dinamis nomor WhatsApp tujuan order, alamat produksi, jam layanan, dan username Instagram. Update langsung berdampak ke portal publik secara *real-time*.
+- **Manajemen Staff (`/admin/users`)**:
+  - Khusus role `ADMIN`: Membuat akun staff baru dan melihat daftar pengguna internal terdaftar.
 
 ---
 
-## 4. Tech Stack
+## 4. Arsitektur & Tech Stack
 
-| Layer | Pilihan | Alasan |
+| Komponen | Teknologi | Keterangan & Implementasi |
 |---|---|---|
-| Framework | **Next.js 15** (App Router) | SSR/SSG untuk SEO bagus, satu codebase untuk halaman publik + admin |
-| Bahasa | TypeScript | Type-safety, mengurangi bug terutama di form admin |
-| Database | **PostgreSQL** | Relasional, cocok untuk data produk-kategori-user yang terstruktur |
-| ORM | Prisma | Migrasi schema mudah, type-safe query ke Postgres |
-| Hosting DB | Supabase atau Neon (Postgres terkelola) | Gratis untuk skala UMKM, backup otomatis |
-| Hosting App | Vercel | Deploy langsung dari Next.js, gratis untuk trafik skala UMKM |
-| Autentikasi | NextAuth.js (Auth.js) — credentials/email login | Cukup untuk 2 role internal (admin/staff), tanpa perlu login sosial pembeli |
-| Penyimpanan gambar | Vercel Blob atau Supabase Storage | Upload foto produk langsung dari panel admin |
-| Styling | Tailwind CSS | Cepat untuk membangun UI konsisten dengan desain katalog |
-| Validasi form | Zod + React Hook Form | Validasi input produk di sisi admin |
-
-**Catatan:** stack ini tanpa biaya di tahap awal (semua provider punya free tier yang cukup untuk trafik UMKM). Biaya baru muncul saat trafik/data tumbuh signifikan.
+| **Framework** | **Next.js 16** (App Router, Turbopack) | Server & Client Components terpisah, Server Actions & API Routes |
+| **Bahasa** | **TypeScript 5** | Strict type definitions untuk model Prisma, NextAuth, dan Props |
+| **Styling** | **Tailwind CSS v4** | CSS Variables (`globals.css`), `@theme` rules, HSL-based color tokens |
+| **UI Components** | **shadcn/ui** + **Radix UI** | Primitives: `@radix-ui/react-dialog`, `dropdown-menu`, `tabs`, `select`, `switch`, `avatar`, `label`, `tooltip`, `scroll-area`, `separator`, `slot` |
+| **Database** | **PostgreSQL** (Prisma ORM 6) | Produksi: Supabase/Neon PostgreSQL via `@prisma/adapter-pg` & `pg` pool. Dev: SQLite fallback |
+| **Autentikasi** | **NextAuth.js v4** | Credentials Provider, JWT session strategy, Middleware route protection |
+| **Iconography** | **Lucide React** | Line icons modern dengan stroke-width konsisten |
 
 ---
 
-## 5. Model Data (Skema Utama)
+## 5. Model Data (Prisma Schema)
 
+```prisma
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String   // Hashed with bcryptjs (salt rounds = 10)
+  role      Role     @default(STAFF) // ADMIN | STAFF
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  price       Int
+  spiceLevel  String   // Original, Pedas Sedang, Extra Pedas, Campur
+  isAvailable Boolean  @default(true)
+  imageUrl    String?
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BusinessSetting {
+  id              String   @id @default("default")
+  whatsappNumber  String
+  address         String
+  openingHours    String
+  instagramHandle String
+  updatedAt       DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
 ```
-User
-- id, name, email, passwordHash, role (ADMIN | STAFF), createdAt
-
-Category
-- id, name, slug
-
-Product
-- id, name, slug, description, price, spiceLevel, isAvailable (boolean)
-- categoryId (FK -> Category)
-- images (relasi ke ProductImage)
-- createdBy (FK -> User), updatedAt
-
-ProductImage
-- id, productId (FK), url, altText, sortOrder
-
-BusinessSetting  (singleton — no. WA, alamat, jam operasional, dsb — diedit lewat admin)
-- id, whatsappNumber, address, openingHours, instagramHandle
-```
 
 ---
 
-## 6. Kebutuhan Fungsional
+## 6. Kebutuhan Fungsional & Status Implemetasi
 
-### 6.1 Halaman Publik
-| ID | Kebutuhan | Prioritas |
-|---|---|---|
-| F1 | Pengunjung dapat melihat daftar produk dengan foto, nama, harga | Must |
-| F2 | Pengunjung dapat filter produk berdasarkan kategori/rasa | Should |
-| F3 | Pengunjung dapat membuka detail produk (deskripsi, level pedas, foto) | Must |
-| F4 | Tombol "Pesan" membuka WhatsApp dengan pesan otomatis berisi nama produk | Must |
-| F5 | Produk dengan status habis ditampilkan tapi tombol pesan nonaktif/label "Stok Habis" | Should |
-| F6 | Halaman Tentang & Kontak menampilkan info usaha yang diambil dari `BusinessSetting` | Must |
+### 6.1 Portal Publik
+| ID | Kebutuhan | Status | Implementasi |
+|---|---|---|---|
+| F1 | Tampilan katalog produk dengan foto, harga, & deskripsi | ✅ Terpasang | `/katalog` & `/katalog/[slug]` |
+| F2 | Filter kategori & pencarian kata kunci | ✅ Terpasang | Real-time Client State Filtering |
+| F3 | Tombol "Pesan via WhatsApp" dengan pesan terformat | ✅ Terpasang | Auto-generated `https://wa.me/{number}?text=...` |
+| F3a | Modal/Section QRIS sebelum checkout WhatsApp | 🆕 Dalam Pengembangan | Menampilkan QRIS DANA Bisnis + instruksi bayar sebelum redirect ke WA |
+| F3b | Format pesan WhatsApp menyertakan konfirmasi pembayaran QRIS | 🆕 Dalam Pengembangan | Contoh: *"Halo Bon Giri, saya ingin memesan [Nama Produk]. Total Rp[Harga]. Saya sudah melakukan pembayaran via QRIS, berikut bukti pembayarannya: [Link Foto/Lampiran]."* |
+| F4 | Indikator status stok "Ready" vs "Stok Habis" | ✅ Terpasang | Dynamic Badge & Disabled Order Button jika habis |
+| F5 | Halaman Profil & Kontak Dinamis | ✅ Terpasang | Diambil dari tabel `BusinessSetting` DB |
 
 ### 6.2 Panel Admin
-| ID | Kebutuhan | Prioritas |
-|---|---|---|
-| F7 | Login dengan email & password | Must |
-| F8 | Admin dapat CRUD produk (nama, harga, deskripsi, kategori, foto, status stok) | Must |
-| F9 | Staff dapat CRUD produk **kecuali** menghapus produk secara permanen (hanya nonaktifkan) | Should |
-| F10 | Admin dapat kelola akun staff (tambah/nonaktifkan akun) | Must |
-| F11 | Admin dapat edit info bisnis (no. WA, alamat, jam operasional) | Must |
-| F12 | Upload gambar produk langsung dari form (drag & drop atau pilih file) | Must |
-| F13 | Log aktivitas dasar: siapa terakhir mengubah produk & kapan | Could |
-
-### 6.3 Non-Fungsional
-| ID | Kebutuhan |
-|---|---|
-| N1 | Waktu muat halaman katalog < 2 detik pada koneksi 4G rata-rata |
-| N2 | Fully responsive: mobile (360px) sampai desktop |
-| N3 | Password admin/staff di-hash (bcrypt/argon2), tidak pernah disimpan plain text |
-| N4 | Backup database otomatis (mengandalkan fitur bawaan Supabase/Neon) |
-| N5 | Uptime target 99% (mengandalkan SLA Vercel + provider Postgres) |
-| N6 | SEO dasar: meta title/description per halaman, sitemap.xml, Open Graph image |
+| ID | Kebutuhan | Status | Implementasi |
+|---|---|---|---|
+| F6 | Login Credentials & Proteksi Router | ✅ Terpasang | `/admin/login` & NextAuth Middleware |
+| F7 | Dashboard Statistik & Grafik Stok | ✅ Terpasang | Stat Cards + Monospace Numbers + SVG Area Chart |
+| F8 | CRUD Produk Lengkap | ✅ Terpasang | Modal Dialog Radix, Form Select, Switch |
+| F9 | Restriksi Hak Akses Staff (Dilarang Hapus) | ✅ Terpasang | RBAC Enforcement di API & UI |
+| F10 | Pengaturan Usaha (WA, Alamat, IG, Jam) | ✅ Terpasang | `/admin/pengaturan` API Update |
+| F11 | Manajemen Pengguna Staff | ✅ Terpasang | `/admin/users` (Khusus ADMIN) |
 
 ---
 
-## 7. Alur Utama (User Flow)
+## 7. Desain & Estetika Sistem
 
-**Alur Pembeli:**
-Beranda → Katalog → Detail Produk → Klik "Pesan via WhatsApp" → Chat WA terbuka dengan pesan siap kirim → Konfirmasi manual oleh tim.
-
-**Alur Admin/Staff:**
-Login → Dashboard produk → Tambah/Edit produk → Upload foto → Simpan → Perubahan langsung tampil di halaman publik.
-
----
-
-## 8. Metrik Keberhasilan
-
-- Jumlah klik tombol "Pesan via WhatsApp" per bulan (event tracking sederhana)
-- Waktu rata-rata staff menambahkan 1 produk baru (target < 3 menit, indikator kemudahan admin panel)
-- Bounce rate halaman katalog (target di bawah rata-rata industri e-commerce UMKM)
+Sistem mengadopsi **Dual-Theme Design System**:
+1. **Portal Publik (Artisanal Crunch - Light Theme)**:
+   - Dominan Krem (`#FFFDD0`), Kuning Keemasan (`#FDB813`), Biru Bahari (`#005B96`), dan Hitam Arang (`#1A1A1A`). Memberikan kesan hangat, higienis, dan terpercaya.
+2. **Panel Admin (Obsidian Developer Dark Mode)**:
+   - Terinspirasi oleh dashboard developer modern (Vercel/Linear).
+   - Latar utama obsidian (`#0f0f0f`), Sidebar (`#111111`), Card/Modal (`#1a1a1a`), dan Border mikro (`#1f1f1f` / `#262626`).
+   - Aksesibilitas kontras tinggi (`#ededed` untuk teks utama, `#525252` & `#737373` untuk label/subteks).
 
 ---
 
-## 9. Timeline & Milestone (Estimasi)
+## 7.1 Catatan Arsitektur — Efisiensi Web tanpa Payment Gateway
 
-| Fase | Cakupan | Estimasi Durasi |
-|---|---|---|
-| 1. Setup | Repo, database schema, auth, deploy pipeline | 3–5 hari |
-| 2. Halaman Publik | Beranda, katalog, detail produk, kontak | 5–7 hari |
-| 3. Panel Admin | CRUD produk, manajemen user, upload gambar | 5–7 hari |
-| 4. QA & Polish | Testing responsif, SEO, perbaikan bug | 3–4 hari |
-| 5. Deploy & Handover | Deploy produksi, training tim pakai admin panel | 1–2 hari |
-
-**Total estimasi: ~3–4 minggu** (asumsi 1 developer, part-time/full-time tergantung kapasitas).
+Karena tidak ada integrasi payment gateway otomatis (Midtrans, Xendit, dll), website tetap ringan dan *fast-loading*:
+- QRIS ditampilkan sebagai **gambar statis** (bukan QRIS dinamis generate-per-transaksi), sehingga tidak memerlukan API call ke penyedia pembayaran.
+- Satu-satunya kebutuhan tambahan adalah penyimpanan 1 aset gambar QRIS (di `public/` atau Supabase Storage) dan sedikit state UI untuk modal checkout.
+- Validasi status "sudah dibayar" sepenuhnya berada di sisi manusia (Admin/Staff mengecek DANA Bisnis) dan dicatat di Aplikasi Mobile — bukan tanggung jawab website.
 
 ---
 
-## 10. Risiko & Mitigasi
+## 8. Verifikasi & Performa Build
 
-| Risiko | Mitigasi |
-|---|---|
-| Tim non-teknis kesulitan pakai panel admin | Buat UI admin sesederhana mungkin + sediakan panduan singkat bergambar |
-| Nomor WA tunggal kewalahan saat order ramai | Rencanakan migrasi ke WhatsApp Business API di v2 jika volume naik |
-| Biaya hosting naik seiring trafik | Pantau penggunaan free tier Vercel/Supabase, siapkan estimasi biaya upgrade |
-
----
-
-## 11. Pertanyaan Terbuka
-
-- Apakah perlu multi-kategori (misal "camilan" vs "paket hemat") sejak v1, atau cukup satu list flat?
-- Apakah tim ingin analytics dasar (Google Analytics/Plausible) terpasang sejak awal?
-- Siapa yang akan jadi Admin utama vs Staff pertama kali sistem berjalan?
+- **Next.js Production Build**: `npm run build` lulus 100% tanpa error TypeScript maupun Linting.
+- **Rute Tergenerasi**: 18 rute terkompilasi sempurna (Static & Dynamic SSR).
+- **Keamanan**: Password di-hash menggunakan `bcryptjs`, API admin terproteksi sesi server-side NextAuth, dan restriksi role terverifikasi di level backend API route.

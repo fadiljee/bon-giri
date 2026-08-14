@@ -45,13 +45,13 @@ export default function AdminProductForm({ categories, initialData }: ProductFor
 
   const [name, setName] = useState(initialData?.name || "");
   const [description, setDescription] = useState(initialData?.description || "");
-  const [price, setPrice] = useState(initialData?.price || 15000);
+  const [price, setPrice] = useState(initialData?.price || 10000);
   const [spiceLevel, setSpiceLevel] = useState(initialData?.spiceLevel || "Original");
   const [categoryId, setCategoryId] = useState(initialData?.categoryId || categories[0]?.id || "");
   const [isAvailable, setIsAvailable] = useState(initialData?.isAvailable ?? true);
   const [imageUrl, setImageUrl] = useState(
     initialData?.imageUrl ||
-      "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=600&auto=format&fit=crop&q=80"
+    "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=600&auto=format&fit=crop&q=80"
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

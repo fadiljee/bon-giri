@@ -36,7 +36,7 @@ async function main() {
     where: { email: "admin@bongiri.com" },
     update: {},
     create: {
-      name: "Admin Bon Giri",
+      name: "Admin Bon Giri", 
       email: "admin@bongiri.com",
       passwordHash: adminPasswordHash,
       role: "ADMIN",
@@ -57,7 +57,7 @@ async function main() {
 
   // 3. Categories
   const catOriginal = await prisma.category.upsert({
-    where: { slug: "original" },
+    where: { slug: "original" },  
     update: {},
     create: { name: "Varian Original", slug: "original" },
   });
@@ -80,7 +80,7 @@ async function main() {
       slug: "stik-keju-tenggiri-original-100g",
       description:
         "Stik keju gurih renyah berbahan dasar keju premium & kalsium tinggi tulang ikan tenggiri khas Bangka Belitung.",
-      price: 15000,
+      price: 10000,
       spiceLevel: "Original",
       isAvailable: true,
       categoryId: catOriginal.id,
@@ -134,7 +134,7 @@ async function main() {
       slug: "stik-keju-tenggiri-rumput-laut-100g",
       description:
         "Sensasi umami gurih rumput laut pilihan yang membalur stik keju renyah tinggi nutrisi kalsium.",
-      price: 16500,
+      price: 10000,
       spiceLevel: "Original",
       isAvailable: true,
       categoryId: catAroma.id,

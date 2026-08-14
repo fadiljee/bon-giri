@@ -12,14 +12,16 @@ enum Role {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  name         String
-  email        String    @unique
-  passwordHash String
-  role         Role      @default(STAFF)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  products     Product[]
+  id                String             @id @default(uuid())
+  name              String
+  email             String             @unique
+  passwordHash      String
+  role              Role               @default(STAFF)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  products          Product[]
+  salesTransactions SalesTransaction[]
+  financialRecords  FinancialRecord[]
 }
 
 model Category {
@@ -37,6 +39,7 @@ model Product {
   slug        String         @unique
   description String
   price       Int
+  costPrice   Int            @default(0)
   spiceLevel  String         @default("Original")
   isAvailable Boolean        @default(true)
   categoryId  String
@@ -46,6 +49,7 @@ model Product {
   createdBy   User           @relation(fields: [createdById], references: [id])
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+  salesItems  SalesItem[]
 }
 
 model ProductImage {
@@ -65,4 +69,47 @@ model BusinessSetting {
   openingHours    String   @default("08:00 - 17:00 WIB")
   instagramHandle String   @default("stikkeju.bongiri_")
   updatedAt       DateTime @updatedAt
+}
+
+model SalesTransaction {
+  id            String      @id @default(uuid())
+  invoiceNumber String      @unique
+  customerName  String      @default("Pembeli Umum")
+  customerPhone String?
+  totalAmount   Int
+  totalCost     Int         @default(0)
+  grossProfit   Int         @default(0)
+  paymentMethod String      @default("CASH")
+  status        String      @default("COMPLETED")
+  createdById   String?
+  createdBy     User?       @relation(fields: [createdById], references: [id])
+  notes         String?
+  items         SalesItem[]
+  createdAt     DateTime    @default(now())
+}
+
+model SalesItem {
+  id            String           @id @default(uuid())
+  transactionId String
+  transaction   SalesTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product?         @relation(fields: [productId], references: [id])
+  productName   String
+  price         Int
+  costPrice     Int
+  quantity      Int
+  subtotal      Int
+}
+
+model FinancialRecord {
+  id              String   @id @default(uuid())
+  type            String   // INCOME | EXPENSE
+  category        String   // BAHAN_BAKU | OPERASIONAL | GAJI | LKM_UBB | LAINNYA
+  title           String
+  amount          Int
+  notes           String?
+  receiptImageUrl String?
+  createdById     String?
+  createdBy       User?    @relation(fields: [createdById], references: [id])
+  createdAt       DateTime @default(now())
 }
