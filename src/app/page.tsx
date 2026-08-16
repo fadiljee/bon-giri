@@ -4,6 +4,8 @@ import MobileAppShell from "@/components/MobileAppShell";
 import { prisma } from "@/lib/prisma";
 import { ArrowRight, MessageSquare, CheckCircle2, Flame, Sparkles, Fish, UtensilsCrossed, GraduationCap } from "lucide-react";
 
+import AddToCartButton from "@/components/AddToCartButton";
+
 export const revalidate = 60;
 
 export default async function Home() {
@@ -129,10 +131,18 @@ export default async function Home() {
                         Rp{product.price.toLocaleString("id-ID")}
                       </span>
                       
-                      {/* Plus Button */}
-                      <Link href={`/katalog/${product.slug}`} className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-[var(--color-muted)]/10 flex items-center justify-center text-[var(--color-charcoal)] hover:bg-[var(--color-gold)] transition-colors">
-                        <span className="text-[18px] font-medium leading-none mb-0.5">+</span>
-                      </Link>
+                      {/* Add to Cart Button */}
+                      <AddToCartButton
+                        product={{
+                          id: product.id,
+                          name: product.name,
+                          slug: product.slug,
+                          price: product.price,
+                          image: imgUrl,
+                          categoryName: product.category?.name,
+                        }}
+                        disabled={!product.isAvailable}
+                      />
                     </div>
                   </div>
                 );

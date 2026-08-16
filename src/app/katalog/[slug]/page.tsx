@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ShieldCheck, Flame, CheckCircle2, AlertCircle } from "lucide-react";
 import QrisCheckoutButton from "@/components/QrisCheckoutButton";
+import AddToCartButton from "@/components/AddToCartButton";
 
 export const revalidate = 60;
 
@@ -143,7 +144,26 @@ export default async function ProductDetailPage({ params }: ProductDetailProps) 
                   </ul>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 space-y-4">
+                  <AddToCartButton
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      slug: product.slug,
+                      price: product.price,
+                      image: imgUrl,
+                      categoryName: product.category.name,
+                    }}
+                    variant="detail-action"
+                    disabled={!product.isAvailable}
+                  />
+
+                  <div className="relative flex py-1 items-center">
+                    <div className="flex-grow border-t border-[var(--color-muted)]/20"></div>
+                    <span className="flex-shrink mx-4 text-[12px] font-bold text-[var(--color-muted)] uppercase tracking-wider">atau</span>
+                    <div className="flex-grow border-t border-[var(--color-muted)]/20"></div>
+                  </div>
+
                   <QrisCheckoutButton 
                     productName={product.name}
                     productPrice={product.price}

@@ -1,10 +1,10 @@
 # PRD — Aplikasi Mobile Admin & Keuangan Bon Giri (React Native + Supabase)
 
 **Nama Proyek:** Bon Giri Manager Mobile  
-**Versi:** 1.1  
-**Tanggal:** 14 Agustus 2026  
+**Versi:** 1.2  
+**Tanggal:** 16 Agustus 2026  
 **Pemilik Produk:** Tim Bon Giri (KLK Kewirausahaan UBB)  
-**Status:** Draf Arsitektur Baru (Mobile Admin Strategy) — Update Alur Verifikasi QRIS & Grafik Laporan  
+**Status:** Draf Arsitektur Baru — Update Alur Checkout COD/QRIS, Upload Bukti Transfer, DB Order Sync, & Success Screen  
 
 ---
 
@@ -14,6 +14,7 @@
 |---|---|---|
 | 1.0 | 10 Agustus 2026 | Rilis awal — Arsitektur mobile admin, POS, dan laporan keuangan. |
 | 1.1 | 14 Agustus 2026 | Menambahkan **Alur Verifikasi Pembayaran QRIS Manual** (via cek saldo DANA Bisnis sebelum input transaksi POS) dan **Grafik Visual Laporan Keuangan** (tren pendapatan, pengeluaran, dan laba bersih) pada Modul Laporan Keuangan untuk role ADMIN. |
+| 1.2 | 16 Agustus 2026 | Menambahkan **Opsi Pembayaran COD & QRIS**, **Unggah Bukti Pembayaran QRIS (/api/upload)**, **Penyimpanan Pesanan ke DB (/api/orders)**, **Layar Pembayaran Berhasil (Success Screen)**, dan **Riwayat Pesanan Lokal (`localStorage`)**. |
 
 ---
 

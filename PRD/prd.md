@@ -1,9 +1,9 @@
 # PRD — Website Katalog & Admin Panel Bon Giri Stik Keju
 
-**Versi:** 2.1 (Update: Integrasi QRIS pada Alur Checkout)  
-**Tanggal:** 14 Agustus 2026  
+**Versi:** 2.2 (Update: Opsi Pembayaran COD/QRIS, Upload Bukti Transfer, DB Order Sync & Success Screen)  
+**Tanggal:** 16 Agustus 2026  
 **Pemilik Produk:** Tim Bon Giri (KLK Kewirausahaan UBB)  
-**Status:** Terimplementasi & Aktif — Dalam Pengembangan Fitur QRIS  
+**Status:** Terimplementasi & Aktif — Fitur Keranjang, COD/QRIS Checkout, DB Order, & Riwayat Pesanan  
 
 ---
 
@@ -12,7 +12,8 @@
 | Versi | Tanggal | Perubahan |
 |---|---|---|
 | 2.0 | 10 Agustus 2026 | Rilis awal — Katalog Publik & Admin Panel Next.js. |
-| 2.1 | 14 Agustus 2026 | Menambahkan **Integrasi QRIS** pada alur pemesanan (tampilan QRIS statis DANA Bisnis di web + penyesuaian format pesan WhatsApp otomatis agar menyertakan konfirmasi pembayaran). Tidak ada payment gateway otomatis — pembayaran tetap divalidasi manual oleh Admin/Staff melalui aplikasi mobile. |
+| 2.1 | 14 Agustus 2026 | Menambahkan **Integrasi QRIS** pada alur pemesanan (tampilan QRIS statis DANA Bisnis). |
+| 2.2 | 16 Agustus 2026 | Menambahkan **Fitur Keranjang Belanja**, **Opsi Metode Pembayaran COD & QRIS**, **Unggah Bukti Transfer QRIS (/api/upload)**, **Penyimpanan Pesanan ke DB (/api/orders)**, **Layar Pembayaran Berhasil (Success Screen)**, serta **Riwayat Pesanan Lokal (`/pesanan`)**. |
 
 ---
 
