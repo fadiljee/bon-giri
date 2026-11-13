@@ -1,30 +1,31 @@
-import MobileAppShell from "@/components/MobileAppShell";
 import { prisma } from "@/lib/prisma";
 import OrderHistoryView from "@/components/OrderHistoryView";
+import SubpageShell from "@/components/storefront/SubpageShell";
+import { BusinessInfo, DEFAULT_BUSINESS_INFO } from "@/data/storefront";
 
 export const revalidate = 60;
 
 export default async function PesananPage() {
-  let waNumber = "6288267018426";
+  let business: BusinessInfo = DEFAULT_BUSINESS_INFO;
   try {
     const settings = await prisma.businessSetting.findUnique({
       where: { id: "default" },
     });
-    if (settings?.whatsappNumber) {
-      waNumber = settings.whatsappNumber;
+    if (settings) {
+      business = {
+        whatsappNumber: settings.whatsappNumber || DEFAULT_BUSINESS_INFO.whatsappNumber,
+        address: settings.address || DEFAULT_BUSINESS_INFO.address,
+        openingHours: settings.openingHours || DEFAULT_BUSINESS_INFO.openingHours,
+        instagramHandle: settings.instagramHandle || DEFAULT_BUSINESS_INFO.instagramHandle,
+      };
     }
   } catch (e) {
-    console.warn("Using default WA number", e);
+    console.warn("Using default business info on PesananPage", e);
   }
 
   return (
-    <MobileAppShell>
-      {/* Header Bar Title */}
-      <div className="bg-[#FFF9E6] px-4 py-2 text-center border-b border-[var(--color-muted)]/10">
-        <span className="text-[14px] font-bold text-[var(--color-charcoal)]">Riwayat Pesanan</span>
-      </div>
-
-      <OrderHistoryView waNumber={waNumber} />
-    </MobileAppShell>
+    <SubpageShell business={business}>
+      <OrderHistoryView waNumber={business.whatsappNumber} />
+    </SubpageShell>
   );
 }

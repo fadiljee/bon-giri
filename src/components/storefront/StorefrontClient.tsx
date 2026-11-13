@@ -1029,21 +1029,26 @@ export default function StorefrontClient({ variants, business }: StorefrontClien
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6">
-            <Link href="/katalog" className="min-h-[44px] inline-flex items-center underline" style={{ color: "var(--text-secondary)" }}>
-              Katalog Lengkap
+          <div className="flex flex-wrap items-center gap-2.5">
+            <a href="#hero" className="sf-footer-pill" aria-current="page">
+              <span>Etalase Utama</span>
+            </a>
+            <Link href="/katalog" className="sf-footer-pill">
+              <span>Katalog Lengkap</span>
             </Link>
-            <Link href="/pesanan" className="min-h-[44px] inline-flex items-center underline" style={{ color: "var(--text-secondary)" }}>
-              Riwayat Pesanan
+            <Link href="/pesanan" className="sf-footer-pill">
+              <span>Riwayat Pesanan</span>
             </Link>
             <a
               href={`https://instagram.com/${business.instagramHandle}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="min-h-[44px] inline-flex items-center underline"
-              style={{ color: "var(--text-secondary)" }}
+              className="sf-footer-pill"
             >
-              @{business.instagramHandle}
+              <span>@{business.instagramHandle}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M7 17L17 7M7 7h10v10" />
+              </svg>
             </a>
           </div>
         </div>

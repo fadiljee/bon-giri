@@ -168,3 +168,20 @@ export const QUALITY_POINTS = [
 export function formatRupiah(amount: number): string {
   return `Rp${amount.toLocaleString("id-ID")}`;
 }
+
+export function getCutoutImage(slug: string, name: string, fallbackUrl?: string): string {
+  const key = `${slug} ${name}`.toLowerCase();
+  if (key.includes("balado") || key.includes("pedas")) {
+    return "/images/products/balado-new.png";
+  }
+  if (key.includes("bbq") || key.includes("barbeque")) {
+    return "/images/products/bbq-new.png";
+  }
+  if (key.includes("rumput") || key.includes("nori") || key.includes("seaweed")) {
+    return "/images/products/rumput-new.png";
+  }
+  if (key.includes("original") || key.includes("keju")) {
+    return "/images/products/original-new.png";
+  }
+  return fallbackUrl || "/images/products/original-new.png";
+}

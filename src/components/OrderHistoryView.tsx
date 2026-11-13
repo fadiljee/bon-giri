@@ -1,34 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { getOrderHistory, clearOrderHistory, OrderRecord } from "@/lib/orderHistory";
-import { ReceiptText, ArrowRight, MessageSquare, Trash2, Calendar, CheckCircle2, QrCode, Banknote, ExternalLink } from "lucide-react";
+import { formatRupiah } from "@/data/storefront";
+
+const emptySubscribe = () => () => {};
 
 interface OrderHistoryViewProps {
   waNumber: string;
 }
 
 export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
-  const [orders, setOrders] = useState<OrderRecord[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setOrders(getOrderHistory());
-    setIsLoaded(true);
-  }, []);
+  const isLoaded = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+  const [clearedOrders, setClearedOrders] = useState<OrderRecord[] | null>(null);
+  const orders = clearedOrders ?? (isLoaded ? getOrderHistory() : []);
 
   const handleClear = () => {
-    if (confirm("Apakah Anda yakin ingin menghapus seluruh riwayat pesanan lokal?")) {
+    if (confirm("Hapus seluruh riwayat pesanan lokal di perangkat ini?")) {
       clearOrderHistory();
-      setOrders([]);
+      setClearedOrders([]);
     }
   };
 
   if (!isLoaded) {
     return (
-      <div className="flex flex-col bg-[#FFF9E6] min-h-screen pb-24 pt-6 px-4 items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-gold-dark)]"></div>
+      <div className="sf-container py-16">
+        <p className="text-sm font-mono" style={{ color: "var(--text-secondary)" }}>
+          Memuat riwayat pesanan...
+        </p>
       </div>
     );
   }
@@ -36,26 +40,54 @@ export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
   const isEmpty = orders.length === 0;
 
   return (
-    <div className="flex flex-col bg-[#FFF9E6] min-h-screen pb-24 pt-4 px-4 space-y-4">
-      {/* Top Header info & Clear button */}
-      {!isEmpty && (
-        <div className="flex items-center justify-between px-1">
-          <span className="text-[13px] font-bold text-[var(--color-charcoal-soft)]">
-            Total {orders.length} Pesanan Tersimpan
-          </span>
+    <div className="sf-container space-y-8">
+      <div data-reveal className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-2">
+          <h1 className="section-title" style={{ color: "var(--text-primary)" }}>
+            Riwayat Pesanan.
+          </h1>
+          <p className="text-base" style={{ color: "var(--text-secondary)" }}>
+            Daftar pesanan yang pernah Anda buat dari perangkat ini beserta nomor faktur untuk konfirmasi ke admin.
+          </p>
+        </div>
+
+        {!isEmpty && (
           <button
             type="button"
             onClick={handleClear}
-            className="text-[12px] font-bold text-[var(--color-error)] hover:underline flex items-center gap-1"
+            className="sf-btn-ghost self-start sm:self-end"
           >
-            <Trash2 className="w-3.5 h-3.5" /> Hapus Riwayat
+            Hapus Riwayat ({orders.length})
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Orders List */}
-      {!isEmpty ? (
-        <div className="space-y-4">
+      {isEmpty ? (
+        <div
+          className="p-8 sm:p-12 space-y-4 max-w-xl"
+          style={{
+            borderRadius: "var(--radius-card)",
+            backgroundColor: "var(--surface)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>
+            Belum ada riwayat pesanan.
+          </h2>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+            Setelah Anda menyelesaikan checkout QRIS atau COD di tas belanja, nomor faktur dan rincian pesanan akan otomatis tersimpan di sini.
+          </p>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Link href="/katalog" className="sf-btn-primary">
+              Lihat Katalog Varian
+            </Link>
+            <Link href="/#order" className="sf-btn-ghost">
+              Ke Konfigurator
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {orders.map((order) => {
             const formattedDate = new Date(order.date).toLocaleDateString("id-ID", {
               day: "numeric",
@@ -66,128 +98,120 @@ export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
             });
 
             const waInquiryMessage = encodeURIComponent(
-              `Halo Admin Bon Giri, saya ingin menanyakan status pesanan saya dengan No. Faktur: ${order.invoiceNumber}. Total: Rp ${order.totalAmount.toLocaleString("id-ID")}.`
+              `Halo Admin Bon Giri, saya ingin menanyakan status pesanan dengan No. Faktur: ${order.invoiceNumber}. Total: ${formatRupiah(order.totalAmount)}.`
             );
 
             return (
-              <div
+              <article
                 key={order.id}
-                className="bg-white rounded-[18px] border border-[var(--color-muted)]/15 shadow-sm p-4 space-y-3 relative overflow-hidden transition-all"
+                data-reveal
+                className="p-6 flex flex-col justify-between gap-5"
+                style={{
+                  borderRadius: "var(--radius-card)",
+                  backgroundColor: "var(--surface)",
+                  border: "1px solid var(--border)",
+                }}
               >
-                {/* Header: Invoice Number & Date */}
-                <div className="flex items-center justify-between border-b border-[var(--color-muted)]/10 pb-2.5">
-                  <div className="space-y-0.5">
-                    <span className="text-[13px] font-bold text-[var(--color-charcoal)] font-mono block">
-                      {order.invoiceNumber}
-                    </span>
-                    <span className="text-[11px] text-[var(--color-muted)] flex items-center gap-1 font-medium">
-                      <Calendar className="w-3 h-3" /> {formattedDate} WIB
-                    </span>
-                  </div>
-
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-                      order.paymentMethod === "QRIS"
-                        ? "bg-[var(--color-gold)]/20 text-[var(--color-gold-dark)]"
-                        : "bg-blue-50 text-blue-700"
-                    }`}
+                <div className="space-y-4">
+                  <div
+                    className="flex items-start justify-between gap-4 pb-4"
+                    style={{ borderBottom: "1px solid var(--border)" }}
                   >
-                    {order.paymentMethod === "QRIS" ? (
-                      <>
-                        <QrCode className="w-3 h-3" /> QRIS
-                      </>
-                    ) : (
-                      <>
-                        <Banknote className="w-3 h-3" /> COD
-                      </>
-                    )}
-                  </span>
-                </div>
+                    <div>
+                      <p className="font-mono text-sm font-bold" style={{ color: "var(--text-primary)" }}>
+                        {order.invoiceNumber}
+                      </p>
+                      <p className="text-xs font-mono mt-1" style={{ color: "var(--text-secondary)" }}>
+                        {formattedDate} WIB
+                      </p>
+                    </div>
 
-                {/* Items List */}
-                <div className="space-y-1.5 pt-1">
-                  <p className="text-[11px] font-bold text-[var(--color-charcoal-soft)] uppercase tracking-wide">
-                    Rincian Produk:
-                  </p>
-                  <div className="bg-[var(--color-cream-soft)]/50 rounded-[12px] p-2.5 space-y-1 border border-[var(--color-gold)]/20">
+                    <span
+                      className="px-3 py-1 text-xs font-mono font-medium"
+                      style={{
+                        borderRadius: "var(--radius-pill)",
+                        backgroundColor: "var(--surface-elevated)",
+                        border: "1px solid var(--border-strong)",
+                        color: "var(--text-primary)",
+                      }}
+                    >
+                      {order.paymentMethod}
+                    </span>
+                  </div>
+
+                  <ul className="space-y-2 text-sm">
                     {order.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-[13px]">
-                        <span className="font-medium text-[var(--color-charcoal)]">
-                          • {item.name} <span className="font-bold text-[var(--color-gold-dark)]">({item.quantity}x)</span>
+                      <li key={idx} className="flex justify-between gap-4">
+                        <span style={{ color: "var(--text-primary)" }}>
+                          {item.name} × {item.quantity}
                         </span>
-                        <span className="font-bold text-[var(--color-charcoal)]">
-                          Rp {(item.price * item.quantity).toLocaleString("id-ID")}
+                        <span className="font-mono shrink-0" style={{ color: "var(--text-secondary)" }}>
+                          {formatRupiah(item.price * item.quantity)}
                         </span>
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
+
+                  {(order.customerName || order.customerAddress || order.proofUrl) && (
+                    <div
+                      className="p-3.5 text-xs space-y-1"
+                      style={{
+                        borderRadius: "var(--radius-card)",
+                        backgroundColor: "var(--surface-elevated)",
+                        border: "1px solid var(--border)",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
+                      {order.customerName && (
+                        <p>
+                          Penerima: <span style={{ color: "var(--text-primary)" }}>{order.customerName}</span>
+                        </p>
+                      )}
+                      {order.customerAddress && (
+                        <p>
+                          Alamat: <span style={{ color: "var(--text-primary)" }}>{order.customerAddress}</span>
+                        </p>
+                      )}
+                      {order.proofUrl && (
+                        <a
+                          href={order.proofUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block underline pt-1 font-medium"
+                          style={{ color: "var(--text-primary)" }}
+                        >
+                          Lihat Bukti Pembayaran
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                {/* Total & Customer Details */}
-                <div className="flex justify-between items-center border-t border-[var(--color-muted)]/10 pt-2.5">
-                  <span className="text-[13px] font-bold text-[var(--color-charcoal)]">Total Pembayaran:</span>
-                  <span className="text-[16px] font-bold text-[var(--color-gold-dark)]">
-                    Rp {order.totalAmount.toLocaleString("id-ID")}
-                  </span>
-                </div>
-
-                {/* Delivery Note & Proof Link if available */}
-                {(order.customerAddress || order.proofUrl) && (
-                  <div className="text-[11px] text-[var(--color-charcoal-soft)] bg-gray-50 p-2.5 rounded-[10px] space-y-1">
-                    {order.customerName && (
-                      <p><strong className="text-[var(--color-charcoal)]">Penerima:</strong> {order.customerName}</p>
-                    )}
-                    {order.customerAddress && (
-                      <p><strong className="text-[var(--color-charcoal)]">Alamat:</strong> {order.customerAddress}</p>
-                    )}
-                    {order.proofUrl && (
-                      <a
-                        href={order.proofUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[var(--color-navy)] font-bold hover:underline mt-0.5"
-                      >
-                        <ExternalLink className="w-3 h-3" /> Lihat Bukti Transfer
-                      </a>
-                    )}
+                <div
+                  className="pt-4 space-y-3"
+                  style={{ borderTop: "1px solid var(--border)" }}
+                >
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                      Total Pembayaran
+                    </span>
+                    <span className="order-price" style={{ color: "var(--text-primary)" }}>
+                      {formatRupiah(order.totalAmount)}
+                    </span>
                   </div>
-                )}
 
-                {/* Action WA Button */}
-                <div className="pt-1">
                   <a
                     href={`https://wa.me/${waNumber}?text=${waInquiryMessage}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-2.5 bg-white hover:bg-[var(--color-gold)]/20 border border-[var(--color-gold)] text-[var(--color-charcoal)] font-bold text-[12px] rounded-full flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                    className="sf-btn-ghost w-full"
                   >
-                    <MessageSquare className="w-3.5 h-3.5 fill-[var(--color-gold-dark)]" />
-                    Tanya Admin WA mengenai Faktur ini
+                    Tanya Admin via WhatsApp
                   </a>
                 </div>
-              </div>
+              </article>
             );
           })}
-        </div>
-      ) : (
-        <div className="bg-white p-8 rounded-[20px] text-center space-y-4 border border-[var(--color-muted)]/15 shadow-sm my-4">
-          <div className="w-16 h-16 rounded-full bg-[#FFF9E6] flex items-center justify-center mx-auto border border-[var(--color-gold)]/40">
-            <ReceiptText className="w-8 h-8 text-[var(--color-gold-dark)]" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-[16px] font-bold text-[var(--color-charcoal)] font-display">
-              Belum Ada Riwayat Pesanan
-            </h3>
-            <p className="text-[13px] text-[var(--color-charcoal-soft)] max-w-xs mx-auto">
-              Pesanan stik keju Bon Giri yang Anda buat akan tersimpan dan dapat dipantau di halaman ini.
-            </p>
-          </div>
-          <Link
-            href="/katalog"
-            className="btn-primary inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-gold)] hover:bg-[var(--color-gold-dark)] text-[var(--color-charcoal)] font-bold text-[14px] rounded-full shadow-md transition-all"
-          >
-            Lihat Katalog Produk <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       )}
     </div>

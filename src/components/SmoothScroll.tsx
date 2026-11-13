@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const lenisRef = useRef<Lenis | null>(null);
+
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -19,6 +23,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
+    lenisRef.current = lenis;
 
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -54,9 +59,51 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       window.removeEventListener("bongiri:scrollto", handleScrollToEvent);
       document.removeEventListener("click", handleAnchorClick);
       lenis.destroy();
+      lenisRef.current = null;
       gsap.ticker.remove(tickerCallback);
     };
   }, []);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    if (!window.location.hash && lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    }
+
+    const ctx = gsap.context(() => {
+      const revealEls = gsap.utils.toArray<HTMLElement>("[data-reveal]");
+      revealEls.forEach((el, idx) => {
+        const delay = Math.min((idx % 4) * 0.06, 0.18);
+        gsap.fromTo(
+          el,
+          { y: 22, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            delay,
+            ease: "power2.out",
+            clearProps: "transform",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 90%",
+              once: true,
+            },
+          }
+        );
+      });
+    });
+
+    ScrollTrigger.refresh();
+
+    return () => {
+      ctx.revert();
+    };
+  }, [pathname]);
 
   return <>{children}</>;
 }
