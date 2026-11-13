@@ -1,28 +1,39 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
+import Script from "next/script";
+import { DM_Sans, DM_Mono, Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import Providers from "@/components/Providers";
 import SmoothScroll from "@/components/SmoothScroll";
-import GsapAnimations from "@/components/GsapAnimations";
 import "./globals.css";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: "400",
+  display: "swap",
+});
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-body",
-  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["600"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Bon Giri",
+  title: "Bon Giri: Stik Keju Tulang Ikan Tenggiri",
   description:
-    "Camilan gurih renyah stik keju asli berbahan dasar tulang ikan tenggiri kaya kalsium dari Bangka Belitung. Pesan langsung via WhatsApp!",
+    "Camilan stik keju gurih renyah berbahan dasar keju dan tepung tulang ikan tenggiri kaya kalsium khas Pangkalpinang, Bangka Belitung.",
   icons: {
     icon: [
       { url: "/images/logo.png" },
@@ -40,13 +51,25 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Bon Giri Team" }],
   openGraph: {
-    title: "Bon Giri — Stik Keju Tulang Ikan Tenggiri",
+    title: "Bon Giri: Stik Keju Tulang Ikan Tenggiri",
     description:
-      "Camilan gurih renyah stik keju asli berbahan dasar tulang ikan tenggiri khas Bangka Belitung.",
+      "Camilan stik keju gurih renyah berbahan dasar keju dan tepung tulang ikan tenggiri khas Bangka Belitung.",
     images: [{ url: "/images/logo.png" }],
     type: "website",
   },
 };
+
+const themeInitScript = `
+(function() {
+  try {
+    var saved = localStorage.getItem('bongiri-theme');
+    var theme = saved === 'dark' || saved === 'light' ? saved : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    var meta = document.querySelector('meta[name="color-scheme"]');
+    if (meta) meta.setAttribute('content', theme);
+  } catch (e) {}
+})();
+`;
 
 export default function RootLayout({
   children,
@@ -56,14 +79,19 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${plusJakartaSans.variable} ${fraunces.variable} h-full antialiased`}
+      data-theme="light"
+      suppressHydrationWarning
+      className={`${dmSans.variable} ${dmMono.variable} ${plusJakartaSans.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#FFFDD0] text-[#1A1A1A]">
+      <head>
+        <meta name="color-scheme" content="light dark" />
+      </head>
+      <body className="min-h-full flex flex-col">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
         <Providers>
-          <SmoothScroll>
-            <GsapAnimations />
-            {children}
-          </SmoothScroll>
+          <SmoothScroll>{children}</SmoothScroll>
         </Providers>
       </body>
     </html>
