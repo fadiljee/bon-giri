@@ -41,6 +41,7 @@ export default function SpecsCanvas({ theme, hovered }: SpecsCanvasProps) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let angle = 0.4;
     let rafId = 0;
+    let isVisible = true;
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -94,16 +95,31 @@ export default function SpecsCanvas({ theme, hovered }: SpecsCanvasProps) {
         ctx.stroke();
       }
 
-      if (!reducedMotion) {
+      if (!reducedMotion && isVisible) {
         angle += hoveredRef.current ? 0.026 : 0.008;
         rafId = requestAnimationFrame(draw);
       }
     };
 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        isVisible = entry.isIntersecting;
+        if (isVisible && !reducedMotion) {
+          cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(draw);
+        }
+      },
+      { threshold: 0.01 }
+    );
+    observer.observe(canvas);
+
     rafId = requestAnimationFrame(draw);
     window.addEventListener("resize", resize);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
     };

@@ -88,6 +88,17 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-stopped { overflow: hidden; }
 .lenis.lenis-smooth iframe { pointer-events: none; }
 
+/* ── View Transitions for Smooth Page Navigation ── */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+  animation-timing-function: var(--ease-out);
+}
+
 /* ── Base Layer ── */
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -95,6 +106,13 @@ html {
   font-size: 17.5px;
   background-color: var(--bg);
   color: var(--text-primary);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -103,6 +121,8 @@ body {
   font-family: var(--font-sans);
   overflow-x: clip;
   line-height: 1.5;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   transition: background-color 280ms var(--ease-out), color 280ms var(--ease-out);
 }
 
@@ -140,21 +160,21 @@ button:disabled,
 }
 
 .hero-title {
-  font-size: clamp(3rem, 6.2vw, 5.75rem);
+  font-size: clamp(2.35rem, 6.2vw, 5.75rem);
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 0.98;
 }
 
 .caption-title {
-  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  font-size: clamp(1.85rem, 5vw, 4.5rem);
   font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 0.98;
 }
 
 .section-title {
-  font-size: clamp(2.15rem, 4.5vw, 3.85rem);
+  font-size: clamp(1.85rem, 4.5vw, 3.85rem);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.04;
@@ -416,6 +436,9 @@ button:disabled,
   right: 0;
   bottom: 0;
   width: min(420px, 100vw);
+  height: 100dvh;
+  max-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom);
   z-index: 80;
   background-color: var(--surface);
   border-left: 1px solid var(--border);
@@ -424,6 +447,11 @@ button:disabled,
   flex-direction: column;
   transform: translateX(0);
   transition: transform 380ms var(--ease-drawer);
+}
+
+.bag-drawer input,
+.bag-drawer textarea {
+  scroll-margin-bottom: 120px;
 }
 
 @starting-style {
@@ -463,6 +491,9 @@ button:disabled,
 }
 
 @media (max-width: 768px) {
+  html {
+    font-size: 16px;
+  }
   .nav-links-desktop {
     display: none;
   }

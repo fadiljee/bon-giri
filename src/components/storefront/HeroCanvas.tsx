@@ -157,6 +157,7 @@ export default function HeroCanvas({ theme }: HeroCanvasProps) {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let rafId = 0;
+    let isVisible = true;
     const start = performance.now();
 
     const draw = (now: number) => {
@@ -176,14 +177,29 @@ export default function HeroCanvas({ theme }: HeroCanvasProps) {
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-      if (!reducedMotion) {
+      if (!reducedMotion && isVisible) {
         rafId = requestAnimationFrame(draw);
       }
     };
 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        isVisible = entry.isIntersecting;
+        if (isVisible && !reducedMotion) {
+          cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(draw);
+        }
+      },
+      { threshold: 0.01 }
+    );
+    observer.observe(canvas);
+
     rafId = requestAnimationFrame(draw);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", handlePointerMove);

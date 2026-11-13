@@ -47,6 +47,14 @@ export default function BagDrawer({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        if (step === "success") {
+          setStep("bag");
+          setConfirmedInvoice(null);
+          setConfirmedWaUrl(null);
+          setProofPreview(null);
+          setUploadedUrl(null);
+          setSubmitError(null);
+        }
         onClose();
       }
     };
@@ -60,7 +68,7 @@ export default function BagDrawer({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = prevOverflow;
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, step]);
 
   const handleClose = () => {
     if (step === "success") {
@@ -127,7 +135,7 @@ export default function BagDrawer({
   const isNameValid = customerName.trim().length > 0;
   const isPhoneValid = customerPhone.trim().length >= 8;
   const isAddressValid = customerAddress.trim().length > 0;
-  const isProofValid = paymentMethod === "cod" || (paymentMethod === "qris" && Boolean(proofPreview) && !isUploading);
+  const isProofValid = paymentMethod === "cod" || (paymentMethod === "qris" && Boolean(uploadedUrl) && !isUploading);
   const canSubmit = isNameValid && isPhoneValid && isAddressValid && isProofValid && cart.length > 0;
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
@@ -237,7 +245,7 @@ export default function BagDrawer({
         </div>
 
         {/* Drawer Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto px-6 py-5">
           {step === "success" ? (
             <div className="flex flex-col justify-center h-full gap-5 py-4">
               <div

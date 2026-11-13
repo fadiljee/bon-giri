@@ -23,6 +23,23 @@ const SHORT_NAME_BY_SLUG: Record<string, string> = {
   "stik-keju-tenggiri-rumput-laut-100g": "Rumput Laut",
 };
 
+function getCutoutImage(slug: string, name: string, fallbackUrl?: string): string {
+  const key = `${slug} ${name}`.toLowerCase();
+  if (key.includes("balado") || key.includes("pedas")) {
+    return "/images/products/balado-new.png";
+  }
+  if (key.includes("bbq") || key.includes("barbeque")) {
+    return "/images/products/bbq-new.png";
+  }
+  if (key.includes("rumput") || key.includes("nori") || key.includes("seaweed")) {
+    return "/images/products/rumput-new.png";
+  }
+  if (key.includes("original") || key.includes("keju")) {
+    return "/images/products/original-new.png";
+  }
+  return fallbackUrl || "/images/products/original-new.png";
+}
+
 export default async function HomePage() {
   let variants: StorefrontVariant[] = FALLBACK_VARIANTS;
   let business: BusinessInfo = DEFAULT_BUSINESS_INFO;
@@ -53,7 +70,7 @@ export default async function HomePage() {
         price: p.price,
         spiceLevel: p.spiceLevel,
         categoryName: p.category?.name || "Varian",
-        image: p.images[0]?.url || "/images/products/original.webp",
+        image: getCutoutImage(p.slug, p.name, p.images[0]?.url),
         swatchColor: SWATCH_BY_SLUG[p.slug] || "#3d5740",
         isAvailable: p.isAvailable,
       }));

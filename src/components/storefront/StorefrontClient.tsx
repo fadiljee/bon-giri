@@ -236,9 +236,13 @@ export default function StorefrontClient({ variants, business }: StorefrontClien
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+    if (!el) return;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) {
+      el.scrollIntoView({ behavior: "auto" });
+      return;
     }
+    window.dispatchEvent(new CustomEvent("bongiri:scrollto", { detail: `#${id}` }));
   };
 
   // Comparison Slider Pointer Handlers
@@ -314,10 +318,13 @@ export default function StorefrontClient({ variants, business }: StorefrontClien
             className="flex items-center gap-2.5 min-h-[44px] font-bold tracking-tight text-base"
             style={{ color: "var(--text-primary)" }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.75" />
-              <path d="M7 15L12 7L17 15H7Z" fill="var(--accent)" />
-            </svg>
+            <Image
+              src="/images/logo-sm.png"
+              alt="Logo Bon Giri"
+              width={32}
+              height={32}
+              className="w-8 h-8 object-contain"
+            />
             <span>Bon Giri</span>
           </a>
 
@@ -695,7 +702,7 @@ export default function StorefrontClient({ variants, business }: StorefrontClien
               <div
                 role="tablist"
                 aria-label="Pilih tampilan perbandingan"
-                className="inline-flex p-1 gap-1"
+                className="inline-flex flex-wrap p-1 gap-1 max-w-full"
                 style={{
                   borderRadius: "var(--radius-pill)",
                   backgroundColor: "var(--surface)",
@@ -1023,17 +1030,17 @@ export default function StorefrontClient({ variants, business }: StorefrontClien
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
-            <Link href="/katalog" className="py-2 underline" style={{ color: "var(--text-secondary)" }}>
+            <Link href="/katalog" className="min-h-[44px] inline-flex items-center underline" style={{ color: "var(--text-secondary)" }}>
               Katalog Lengkap
             </Link>
-            <Link href="/pesanan" className="py-2 underline" style={{ color: "var(--text-secondary)" }}>
+            <Link href="/pesanan" className="min-h-[44px] inline-flex items-center underline" style={{ color: "var(--text-secondary)" }}>
               Riwayat Pesanan
             </Link>
             <a
               href={`https://instagram.com/${business.instagramHandle}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="py-2 underline"
+              className="min-h-[44px] inline-flex items-center underline"
               style={{ color: "var(--text-secondary)" }}
             >
               @{business.instagramHandle}

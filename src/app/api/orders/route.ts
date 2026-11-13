@@ -20,19 +20,25 @@ export async function POST(request: Request) {
       );
     }
 
-    // Extract product IDs to query cost prices if possible
+    // Extract product IDs to query cost prices and verify foreign keys
     const productIds = items
-      .map((i: any) => i.productId || i.id)
-      .filter(Boolean);
+      .map((i: { productId?: string; id?: string }) => i.productId || i.id)
+      .filter(Boolean) as string[];
 
-    let dbProducts: Record<string, { costPrice: number }> = {};
+    const dbProducts: Record<string, { id: string; costPrice: number }> = {};
     if (productIds.length > 0) {
       const foundProducts = await prisma.product.findMany({
-        where: { id: { in: productIds } },
-        select: { id: true, costPrice: true },
+        where: {
+          OR: [
+            { id: { in: productIds } },
+            { slug: { in: productIds } },
+          ],
+        },
+        select: { id: true, slug: true, costPrice: true },
       });
       foundProducts.forEach((p) => {
-        dbProducts[p.id] = { costPrice: p.costPrice };
+        dbProducts[p.id] = { id: p.id, costPrice: p.costPrice };
+        dbProducts[p.slug] = { id: p.id, costPrice: p.costPrice };
       });
     }
 
@@ -40,9 +46,11 @@ export async function POST(request: Request) {
     let totalAmount = 0;
     let totalCost = 0;
 
-    const preparedItems = items.map((item: any) => {
-      const pId = item.productId || item.id || null;
-      const cost = pId && dbProducts[pId] ? dbProducts[pId].costPrice : 0;
+    const preparedItems = items.map((item: { productId?: string; id?: string; name?: string; productName?: string; price: number; quantity: number }) => {
+      const rawId = item.productId || item.id || "";
+      const matched = rawId ? dbProducts[rawId] : undefined;
+      const pId = matched ? matched.id : null;
+      const cost = matched ? matched.costPrice : 0;
       const subtotal = item.price * item.quantity;
       
       totalAmount += subtotal;

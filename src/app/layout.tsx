@@ -36,11 +36,11 @@ export const metadata: Metadata = {
     "Camilan stik keju gurih renyah berbahan dasar keju dan tepung tulang ikan tenggiri kaya kalsium khas Pangkalpinang, Bangka Belitung.",
   icons: {
     icon: [
-      { url: "/images/logo.png" },
-      { url: "/images/logo.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "192x192" },
     ],
-    shortcut: "/images/logo.png",
-    apple: "/images/logo.png",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
   keywords: [
     "Bon Giri",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: "Bon Giri: Stik Keju Tulang Ikan Tenggiri",
     description:
       "Camilan stik keju gurih renyah berbahan dasar keju dan tepung tulang ikan tenggiri khas Bangka Belitung.",
-    images: [{ url: "/images/logo.png" }],
+    images: [{ url: "/images/logo-sm.png" }],
     type: "website",
   },
 };
