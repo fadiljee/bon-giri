@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { ShoppingBag, ArrowLeft, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
+import { ShoppingBag, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
 import WhatsAppOrderButton from "@/components/WhatsAppOrderButton";
 
 interface CartViewProps {

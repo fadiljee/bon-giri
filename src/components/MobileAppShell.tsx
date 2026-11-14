@@ -14,7 +14,6 @@ import {
   Home,
   Info,
   PhoneCall,
-  ShieldCheck,
   ChevronRight,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
