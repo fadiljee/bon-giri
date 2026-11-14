@@ -10,12 +10,11 @@ export interface OrderRecord {
   date: string; // ISO string
   items: OrderItem[];
   totalAmount: number;
-  paymentMethod: "QRIS" | "COD";
+  paymentMethod?: string;
   status: "PENDING" | "COMPLETED";
   customerName?: string;
   customerPhone?: string;
   customerAddress?: string;
-  proofUrl?: string | null;
 }
 
 const STORAGE_KEY = "bon_giri_orders";

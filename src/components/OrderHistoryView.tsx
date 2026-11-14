@@ -75,7 +75,7 @@ export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
             Belum ada riwayat pesanan.
           </h2>
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-            Setelah Anda menyelesaikan checkout QRIS atau COD di tas belanja, nomor faktur dan rincian pesanan akan otomatis tersimpan di sini.
+            Setelah Anda mengirim pesanan ke WhatsApp dari tas belanja, rincian pesanan akan otomatis tersimpan di sini.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <Link href="/katalog" className="sf-btn-primary">
@@ -135,7 +135,7 @@ export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
                         color: "var(--text-primary)",
                       }}
                     >
-                      {order.paymentMethod}
+                      Via WhatsApp
                     </span>
                   </div>
 
@@ -152,7 +152,7 @@ export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
                     ))}
                   </ul>
 
-                  {(order.customerName || order.customerAddress || order.proofUrl) && (
+                  {(order.customerName || order.customerAddress) && (
                     <div
                       className="p-3.5 text-xs space-y-1"
                       style={{
@@ -172,17 +172,6 @@ export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
                           Alamat: <span style={{ color: "var(--text-primary)" }}>{order.customerAddress}</span>
                         </p>
                       )}
-                      {order.proofUrl && (
-                        <a
-                          href={order.proofUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block underline pt-1 font-medium"
-                          style={{ color: "var(--text-primary)" }}
-                        >
-                          Lihat Bukti Pembayaran
-                        </a>
-                      )}
                     </div>
                   )}
                 </div>
@@ -193,7 +182,7 @@ export default function OrderHistoryView({ waNumber }: OrderHistoryViewProps) {
                 >
                   <div className="flex items-baseline justify-between">
                     <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                      Total Pembayaran
+                      Total Pesanan
                     </span>
                     <span className="order-price" style={{ color: "var(--text-primary)" }}>
                       {formatRupiah(order.totalAmount)}

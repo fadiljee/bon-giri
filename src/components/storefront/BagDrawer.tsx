@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, ChangeEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { formatRupiah } from "@/data/storefront";
@@ -13,7 +13,7 @@ interface BagDrawerProps {
   onExploreOrder: () => void;
 }
 
-type DrawerStep = "bag" | "checkout" | "success";
+type DrawerStep = "bag" | "order" | "success";
 
 export default function BagDrawer({
   isOpen,
@@ -25,20 +25,12 @@ export default function BagDrawer({
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 
   const [step, setStep] = useState<DrawerStep>("bag");
-  const [paymentMethod, setPaymentMethod] = useState<"qris" | "cod">("qris");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const [proofPreview, setProofPreview] = useState<string | null>(null);
-  const [proofFileName, setProofFileName] = useState<string | null>(null);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [confirmedInvoice, setConfirmedInvoice] = useState<string | null>(null);
+  const [confirmedRef, setConfirmedRef] = useState<string | null>(null);
   const [confirmedWaUrl, setConfirmedWaUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,11 +42,9 @@ export default function BagDrawer({
       if (e.key === "Escape") {
         if (step === "success") {
           setStep("bag");
-          setConfirmedInvoice(null);
+          setConfirmedRef(null);
           setConfirmedWaUrl(null);
-          setProofPreview(null);
-          setUploadedUrl(null);
-          setSubmitError(null);
+          setFormError(null);
         }
         onClose();
       }
@@ -74,63 +64,25 @@ export default function BagDrawer({
   const handleClose = () => {
     if (step === "success") {
       setStep("bag");
-      setConfirmedInvoice(null);
+      setConfirmedRef(null);
       setConfirmedWaUrl(null);
-      setProofPreview(null);
-      setProofFileName(null);
-      setUploadedUrl(null);
-      setSubmitError(null);
+      setFormError(null);
     }
     onClose();
   };
 
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setProofPreview(URL.createObjectURL(file));
-    setProofFileName(file.name);
-    setUploadError(null);
-    setIsUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok && data.url) {
-        setUploadedUrl(data.url);
-      } else {
-        setUploadedUrl(`/uploads/dummy-proof-${Date.now()}.png`);
-      }
-    } catch {
-      setUploadedUrl(`/uploads/dummy-proof-${Date.now()}.png`);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const buildWaMessageUrl = (invoiceNumber?: string) => {
+  const buildWaMessageUrl = (orderRef?: string) => {
     const lines = cart
       .map((item) => `- ${item.name} (${item.quantity}x) : ${formatRupiah(item.price * item.quantity)}`)
       .join("\n");
 
-    let text = `Halo Bon Giri, saya ingin konfirmasi pesanan:\n\n`;
-    if (invoiceNumber) text += `No. Faktur: ${invoiceNumber}\n`;
-    text += `Metode: ${paymentMethod === "cod" ? "COD (Bayar di Tempat)" : "QRIS / Transfer"}\n`;
-    text += `Total: ${formatRupiah(totalPrice)}\n\n`;
-    text += `Rincian:\n${lines}\n\n`;
+    let text = `Halo Bon Giri, saya ingin memesan:\n\n`;
+    if (orderRef) text += `Ref. Pesanan: ${orderRef}\n`;
+    text += `Total Estimasi: ${formatRupiah(totalPrice)}\n\n`;
+    text += `Rincian Pesanan:\n${lines}\n\n`;
     if (customerName.trim()) text += `Nama: ${customerName.trim()}\n`;
     if (customerPhone.trim()) text += `WhatsApp: ${customerPhone.trim()}\n`;
     if (customerAddress.trim()) text += `Alamat: ${customerAddress.trim()}\n`;
-    if (uploadedUrl && typeof window !== "undefined") {
-      text += `Bukti Transfer: ${window.location.origin}${uploadedUrl}\n`;
-    }
 
     return `https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
   };
@@ -138,65 +90,41 @@ export default function BagDrawer({
   const isNameValid = customerName.trim().length > 0;
   const isPhoneValid = customerPhone.trim().length >= 8;
   const isAddressValid = customerAddress.trim().length > 0;
-  const isProofValid = paymentMethod === "cod" || (paymentMethod === "qris" && Boolean(uploadedUrl) && !isUploading);
-  const canSubmit = isNameValid && isPhoneValid && isAddressValid && isProofValid && cart.length > 0;
+  const canSubmit = isNameValid && isPhoneValid && isAddressValid && cart.length > 0;
 
-  const handleSubmitOrder = async (e: React.FormEvent) => {
+  const handleSubmitOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canSubmit || isSubmitting) return;
+    if (cart.length === 0) return;
 
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName: customerName.trim(),
-          customerPhone: customerPhone.trim(),
-          customerAddress: customerAddress.trim(),
-          paymentMethod,
-          proofUrl: uploadedUrl,
-          items: cart.map((item) => ({
-            productId: item.id.split("__")[0],
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-          })),
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        setSubmitError(data.error || "Gagal menyimpan pesanan ke sistem.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      const invoiceNumber = data.invoiceNumber || "INV-BONGIRI";
-      saveOrderToHistory({
-        invoiceNumber,
-        items: cart.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity })),
-        totalAmount: totalPrice,
-        paymentMethod: paymentMethod === "cod" ? "COD" : "QRIS",
-        status: "PENDING",
-        customerName: customerName.trim(),
-        customerPhone: customerPhone.trim(),
-        customerAddress: customerAddress.trim(),
-        proofUrl: uploadedUrl,
-      });
-
-      const waUrl = buildWaMessageUrl(invoiceNumber);
-      setConfirmedInvoice(invoiceNumber);
-      setConfirmedWaUrl(waUrl);
-      clearCart();
-      setStep("success");
-    } catch {
-      setSubmitError("Terjadi gangguan jaringan saat mengirim pesanan.");
-    } finally {
-      setIsSubmitting(false);
+    if (!isNameValid || !isPhoneValid || !isAddressValid) {
+      setFormError("Mohon lengkapi nama, nomor WhatsApp (minimal 8 angka), dan alamat pengiriman.");
+      return;
     }
+
+    setFormError(null);
+
+    const timestamp = Date.now().toString().slice(-6);
+    const randomDigits = Math.floor(100 + Math.random() * 900);
+    const orderRef = `BG-${timestamp}-${randomDigits}`;
+    const waUrl = buildWaMessageUrl(orderRef);
+
+    saveOrderToHistory({
+      invoiceNumber: orderRef,
+      items: cart.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity })),
+      totalAmount: totalPrice,
+      paymentMethod: "WhatsApp",
+      status: "PENDING",
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      customerAddress: customerAddress.trim(),
+    });
+
+    window.open(waUrl, "_blank", "noopener,noreferrer");
+
+    setConfirmedRef(orderRef);
+    setConfirmedWaUrl(waUrl);
+    clearCart();
+    setStep("success");
   };
 
   if (!isOpen) return null;
@@ -229,9 +157,9 @@ export default function BagDrawer({
             >
               {step === "bag"
                 ? `Tas Belanja (${totalItems})`
-                : step === "checkout"
-                ? "Pembayaran & Pengiriman"
-                : "Pesanan Diterima"}
+                : step === "order"
+                ? "Data Pengiriman"
+                : "Pesanan Siap di WhatsApp"}
             </h2>
           </div>
           <button
@@ -263,24 +191,24 @@ export default function BagDrawer({
                   Status Pesanan
                 </p>
                 <p className="text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>
-                  Order Confirmed
+                  Diteruskan ke WhatsApp
                 </p>
                 <div className="flex justify-between text-sm py-1.5" style={{ borderTop: "1px solid var(--border)" }}>
-                  <span style={{ color: "var(--text-secondary)" }}>No. Faktur</span>
+                  <span style={{ color: "var(--text-secondary)" }}>Ref. Pesanan</span>
                   <span className="font-mono font-medium" style={{ color: "var(--text-primary)" }}>
-                    {confirmedInvoice}
+                    {confirmedRef}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm py-1.5" style={{ borderTop: "1px solid var(--border)" }}>
-                  <span style={{ color: "var(--text-secondary)" }}>Metode</span>
+                  <span style={{ color: "var(--text-secondary)" }}>Pemesanan</span>
                   <span style={{ color: "var(--text-primary)" }}>
-                    {paymentMethod === "cod" ? "COD (Bayar di Tempat)" : "QRIS / Transfer"}
+                    Langsung via WhatsApp
                   </span>
                 </div>
               </div>
 
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                Pesanan Anda telah tercatat. Lanjutkan konfirmasi ke WhatsApp admin Bon Giri agar segera diproses.
+                Jika jendela WhatsApp belum terbuka otomatis, tekan tombol di bawah untuk mengirim rincian pesanan ke admin Bon Giri.
               </p>
 
               {confirmedWaUrl && (
@@ -291,7 +219,7 @@ export default function BagDrawer({
                   onClick={handleClose}
                   className="sf-btn-primary w-full"
                 >
-                  Konfirmasi via WhatsApp
+                  Buka WhatsApp
                 </a>
               )}
 
@@ -389,7 +317,7 @@ export default function BagDrawer({
                       <button
                         type="button"
                         onClick={() => removeFromCart(item.id)}
-                        className="text-xs underline py-2 px-2"
+                        className="text-xs underline py-2 px-2 min-h-[44px]"
                         style={{ color: "var(--text-secondary)" }}
                       >
                         Hapus
@@ -400,10 +328,13 @@ export default function BagDrawer({
               ))}
             </ul>
           ) : (
-            <form id="drawer-checkout-form" onSubmit={handleSubmitOrder} className="space-y-4">
+            <form id="drawer-order-form" onSubmit={handleSubmitOrder} className="space-y-4">
               <button
                 type="button"
-                onClick={() => setStep("bag")}
+                onClick={() => {
+                  setFormError(null);
+                  setStep("bag");
+                }}
                 className="sf-footer-pill"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -412,151 +343,22 @@ export default function BagDrawer({
                 <span>Kembali ke Daftar Tas</span>
               </button>
 
-              <div>
-                <span className="block text-xs font-mono uppercase tracking-wider mb-2" style={{ color: "var(--text-secondary)" }}>
-                  Metode Pembayaran
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("qris")}
-                    className="pill-option min-h-[44px] px-3 py-2 text-sm font-medium transition-colors"
-                    style={{
-                      borderRadius: "var(--radius-card)",
-                      backgroundColor: paymentMethod === "qris" ? "var(--surface-elevated)" : "transparent",
-                      border: `1px solid ${paymentMethod === "qris" ? "var(--border-strong)" : "var(--border)"}`,
-                      color: "var(--text-primary)",
-                    }}
-                  >
-                    QRIS / Transfer
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("cod")}
-                    className="pill-option min-h-[44px] px-3 py-2 text-sm font-medium transition-colors"
-                    style={{
-                      borderRadius: "var(--radius-card)",
-                      backgroundColor: paymentMethod === "cod" ? "var(--surface-elevated)" : "transparent",
-                      border: `1px solid ${paymentMethod === "cod" ? "var(--border-strong)" : "var(--border)"}`,
-                      color: "var(--text-primary)",
-                    }}
-                  >
-                    COD (Di Tempat)
-                  </button>
-                </div>
-              </div>
-
-              {paymentMethod === "qris" && (
-                <div
-                  className="p-3.5 space-y-3"
-                  style={{
-                    borderRadius: "var(--radius-card)",
-                    backgroundColor: "var(--surface-elevated)",
-                    border: "1px solid var(--border)",
-                  }}
-                >
-                  <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    Scan QRIS Bon Giri untuk membayar <strong style={{ color: "var(--text-primary)" }}>{formatRupiah(totalPrice)}</strong>, lalu unggah bukti transfer.
-                  </p>
-                  <div className="relative w-40 h-40 mx-auto bg-white p-2" style={{ borderRadius: "var(--radius-card)" }}>
-                    <Image
-                      src="/images/qris.png"
-                      alt="QRIS Bon Giri"
-                      fill
-                      sizes="160px"
-                      className="object-contain"
-                    />
-                  </div>
-                  <div className="space-y-2.5">
-                    <span
-                      className="block text-xs font-medium"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Bukti Pembayaran (JPG, PNG, WEBP)
-                    </span>
-                    <input
-                      id="qris-proof-input"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="sr-only"
-                    />
-                    <label
-                      htmlFor="qris-proof-input"
-                      className="w-full min-h-[44px] px-4 py-2.5 inline-flex items-center justify-center gap-2 text-xs font-medium transition-colors cursor-pointer"
-                      style={{
-                        borderRadius: "var(--radius-pill)",
-                        backgroundColor: uploadedUrl ? "var(--accent)" : "var(--bg)",
-                        border: uploadedUrl ? "1px solid var(--accent)" : "1px solid var(--border-strong)",
-                        color: uploadedUrl ? "var(--accent-text)" : "var(--text-primary)",
-                      }}
-                    >
-                      {isUploading ? (
-                        <span>Mengunggah bukti...</span>
-                      ) : uploadedUrl ? (
-                        <>
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-                            <path d="M20 6L9 17l-5-5" />
-                          </svg>
-                          <span>Ganti Bukti Pembayaran</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="17 8 12 3 7 8" />
-                            <line x1="12" y1="3" x2="12" y2="15" />
-                          </svg>
-                          <span>Unggah Bukti Pembayaran</span>
-                        </>
-                      )}
-                    </label>
-                    {proofPreview && !isUploading && (
-                      <div
-                        className="flex items-center gap-3 p-2.5"
-                        style={{
-                          borderRadius: "var(--radius-card)",
-                          backgroundColor: "var(--bg)",
-                          border: "1px solid var(--border)",
-                        }}
-                      >
-                        <img
-                          src={proofPreview}
-                          alt="Pratinjau bukti pembayaran"
-                          className="w-10 h-10 object-cover shrink-0"
-                          style={{ borderRadius: "6px" }}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>
-                            {proofFileName || "Bukti pembayaran"}
-                          </p>
-                          <p className="text-[11px] font-mono" style={{ color: "var(--accent)" }}>
-                            Siap dilampirkan
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    {uploadError && (
-                      <p className="text-xs font-medium" role="alert" style={{ color: "#b84b39" }}>
-                        Error: {uploadError}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
+              <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                Isi data pengiriman di bawah. Rincian pesanan akan langsung dikirim ke WhatsApp admin Bon Giri untuk diproses.
+              </p>
 
               <div>
-                <label htmlFor="checkout-name" className="block text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
+                <label htmlFor="order-name" className="block text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
                   Nama Pemesan
                 </label>
                 <input
-                  id="checkout-name"
+                  id="order-name"
                   type="text"
                   required
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Nama lengkap Anda"
-                  className="w-full px-3 py-2.5 text-sm"
+                  className="w-full min-h-[44px] px-3 py-2.5 text-sm"
                   style={{
                     borderRadius: "var(--radius-card)",
                     backgroundColor: "var(--bg)",
@@ -567,18 +369,18 @@ export default function BagDrawer({
               </div>
 
               <div>
-                <label htmlFor="checkout-phone" className="block text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
+                <label htmlFor="order-phone" className="block text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
                   No. WhatsApp (Min. 8 angka)
                 </label>
                 <input
-                  id="checkout-phone"
+                  id="order-phone"
                   type="tel"
                   inputMode="numeric"
                   required
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9]/g, ""))}
                   placeholder="08xxxxxxxxxx"
-                  className="w-full px-3 py-2.5 text-sm font-mono"
+                  className="w-full min-h-[44px] px-3 py-2.5 text-sm font-mono"
                   style={{
                     borderRadius: "var(--radius-card)",
                     backgroundColor: "var(--bg)",
@@ -589,12 +391,12 @@ export default function BagDrawer({
               </div>
 
               <div>
-                <label htmlFor="checkout-address" className="block text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
+                <label htmlFor="order-address" className="block text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
                   Alamat Pengiriman
                 </label>
                 <textarea
-                  id="checkout-address"
-                  rows={2}
+                  id="order-address"
+                  rows={3}
                   required
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
@@ -609,7 +411,7 @@ export default function BagDrawer({
                 />
               </div>
 
-              {submitError && (
+              {formError && (
                 <p
                   role="alert"
                   className="text-xs p-3 font-medium"
@@ -620,7 +422,7 @@ export default function BagDrawer({
                     color: "#b84b39",
                   }}
                 >
-                  Gagal mengirim pesanan: {submitError}
+                  {formError}
                 </p>
               )}
             </form>
@@ -635,7 +437,7 @@ export default function BagDrawer({
           >
             <div className="flex items-baseline justify-between">
               <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                Total Pembayaran
+                Total Pesanan
               </span>
               <span className="order-price" style={{ color: "var(--text-primary)" }}>
                 {formatRupiah(totalPrice)}
@@ -646,10 +448,10 @@ export default function BagDrawer({
               <div className="space-y-2">
                 <button
                   type="button"
-                  onClick={() => setStep("checkout")}
+                  onClick={() => setStep("order")}
                   className="sf-btn-primary w-full"
                 >
-                  Checkout Sekarang
+                  Lanjut Pesan via WhatsApp
                 </button>
                 <a
                   href={buildWaMessageUrl()}
@@ -657,17 +459,17 @@ export default function BagDrawer({
                   rel="noopener noreferrer"
                   className="sf-btn-ghost w-full text-center"
                 >
-                  Pesan Langsung via WhatsApp
+                  Chat Langsung via WhatsApp
                 </a>
               </div>
             ) : (
               <button
                 type="submit"
-                form="drawer-checkout-form"
-                disabled={!canSubmit || isSubmitting}
+                form="drawer-order-form"
+                disabled={!canSubmit}
                 className="sf-btn-primary w-full disabled:opacity-50"
               >
-                {isSubmitting ? "Menyimpan Pesanan..." : "Konfirmasi Pesanan"}
+                Kirim Pesanan ke WhatsApp
               </button>
             )}
           </div>

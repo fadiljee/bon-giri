@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { ShoppingBag, ArrowLeft, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
-import QrisCheckoutButton from "@/components/QrisCheckoutButton";
+import WhatsAppOrderButton from "@/components/WhatsAppOrderButton";
 
 interface CartViewProps {
   waNumber: string;
@@ -129,7 +129,7 @@ export default function CartView({ waNumber }: CartViewProps) {
               <span className="font-bold text-[var(--color-charcoal)]">{totalItems} pcs</span>
             </div>
             <div className="flex justify-between items-center text-[15px] font-bold border-t border-[var(--color-muted)]/15 pt-2">
-              <span className="text-[var(--color-charcoal)]">Total Pembayaran:</span>
+              <span className="text-[var(--color-charcoal)]">Total Pesanan:</span>
               <span className="text-[var(--color-gold-dark)] text-[18px]">
                 Rp {totalPrice.toLocaleString("id-ID")}
               </span>
@@ -181,7 +181,7 @@ export default function CartView({ waNumber }: CartViewProps) {
       {/* Sticky Bottom Checkout Action */}
       {!isEmpty && (
         <div className="fixed bottom-[72px] left-1/2 -translate-x-1/2 w-full max-w-[480px] px-4 pb-4 z-40 bg-gradient-to-t from-[#FFF9E6] via-[#FFF9E6]/95 to-transparent pt-4">
-          <QrisCheckoutButton
+          <WhatsAppOrderButton
             items={cart.map((i) => ({
               name: i.name,
               quantity: i.quantity,
